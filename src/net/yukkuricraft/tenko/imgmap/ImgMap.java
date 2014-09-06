@@ -2,6 +2,7 @@ package net.yukkuricraft.tenko.imgmap;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.logging.Level;
 
 /**
@@ -14,6 +15,8 @@ import java.util.logging.Level;
 public class ImgMap extends JavaPlugin {
 
 	private static ImgMap instance; // *gasp* SINGLETON PATTERN! HERESY!
+	private File videos_dir;
+	private File images_dir;
 
 	@Override
 	public void onEnable(){
@@ -24,7 +27,10 @@ public class ImgMap extends JavaPlugin {
 			getLogger().log(Level.WARNING, "Otherwise, if you are not reloading, please copy and paste this information into the BukkitDev comments.:");
 			getLogger().log(Level.WARNING, "\"instance\" was " + instance.toString() + " and is it enabled: " + instance.isEnabled());
 		}
-		instance = this;
+		instance = this; // It'd be wise to do this first.
+
+		videos_dir = dir("localVideos");
+		images_dir = dir("localImages");
 	}
 
 	public void onDisable(){
@@ -41,6 +47,23 @@ public class ImgMap extends JavaPlugin {
 
 	public static void log(Level level, String message, Throwable t){
 		getInstance().getLogger().log(level, message, t);
+	}
+
+	public File getLVideosDirectory(){
+		return videos_dir;
+	}
+
+	public File getLImagesDirectory(){
+		return images_dir;
+	}
+
+	private final File dir(String name){
+		File file = new File(this.getDataFolder(), name);
+		if(!file.exists()){
+			file.mkdir();
+		}
+
+		return file;
 	}
 
 }
