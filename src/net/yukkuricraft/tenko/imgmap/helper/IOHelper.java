@@ -25,15 +25,19 @@ public class IOHelper {
 		return ImageIO.read(file);
 	}
 
-	public static Image fetchImage(URL url) throws IOException {
-			HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-			int response = conn.getResponseCode();
-			if(!(response >= 200 && response <= 207)){
-				logger.log(Level.WARNING, "Received HTTP response code " + response + ". Attempting to read image anyways.");
-			}
+	public static Image fetchImage(String url) throws IOException {
+		return fetchImage(new URL(url));
+	}
 
-			Image image = ImageIO.read(conn.getInputStream());
-			conn.disconnect();
-			return image;
+	public static Image fetchImage(URL url) throws IOException {
+		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+		int response = conn.getResponseCode();
+		if(!(response >= 200 && response <= 207)){
+			logger.log(Level.WARNING, "Received HTTP response code " + response + ". Attempting to read image anyways.");
+		}
+
+		Image image = ImageIO.read(conn.getInputStream());
+		conn.disconnect();
+		return image;
 	}
 }

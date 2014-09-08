@@ -18,7 +18,7 @@ import java.net.URL;
 public class DrawImageCommand extends CommandHandler {
 
 	public DrawImageCommand(){
-		super(1, true, "imgmap.drawimage", "/drawimage <url> [map id (if you're using from console)] [-l (if image is local)] [-s (to save)]");
+		super(1, true, "imgmap.drawimage", "/drawimage <url> [-l (if image is local)] [-s (to save)]");
 	}
 
 	@Override
@@ -46,6 +46,7 @@ public class DrawImageCommand extends CommandHandler {
 		MapHelper.removeRenderers(view);
 		view.addRenderer(new ImageRenderer(image));
 		((Player)sender).sendMap(view); // Update the map now.
+		commandSuccess(sender, "Drawing " + arguments[0] + "...");
 	}
 
 }

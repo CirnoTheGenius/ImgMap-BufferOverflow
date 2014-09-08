@@ -23,13 +23,13 @@ public class NMSHelper {
 		}
 	}
 
-	public MapRenderer getDefaultRenderer(World world){
-		return TRUE_HELPER.getDefaultRenderer(world);
+	public static MapRenderer getDefaultRenderer(short id, World world){
+		return TRUE_HELPER.getDefaultRenderer(id, world);
 	}
 
 	public interface Abstraction {
 
-		public MapRenderer getDefaultRenderer(World world);
+		public MapRenderer getDefaultRenderer(short id, World world);
 
 	}
 

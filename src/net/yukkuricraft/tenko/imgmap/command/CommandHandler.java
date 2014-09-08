@@ -58,4 +58,8 @@ public abstract class CommandHandler implements CommandExecutor {
 		sender.sendMessage(ChatColor.RED + "[ImgMap] " + reason);
 	}
 
+	void commandSuccess(CommandSender sender, String reason){
+		sender.sendMessage(ChatColor.GREEN + "[ImgMap] " + reason);
+	}
+
 }
