@@ -7,8 +7,8 @@ import java.util.logging.Logger;
 public abstract class AbstractSafeRunnable implements Runnable {
 
 	protected static Logger logger = Logger.getLogger("ImgMap");
+	protected SoftReference<Thread> thread; // I love using Reference classes.
 	private AtomicBoolean isRunning = new AtomicBoolean(false);
-	private SoftReference<Thread> thread; // I love using Reference classes.
 
 	@Override
 	public void run(){

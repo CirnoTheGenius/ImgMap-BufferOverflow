@@ -1,6 +1,7 @@
 package net.yukkuricraft.tenko.imgmap.helper;
 
 import net.yukkuricraft.tenko.imgmap.ImgMap;
+import net.yukkuricraft.tenko.imgmap.graphproc.DownloadRunnable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -43,9 +44,44 @@ public class IOHelper {
 	}
 
 	public static void resizeImage(BufferedImage image){
+		resizeImage(image, TargetType.QUALITY);
+	}
+
+	public static void resizeImage(BufferedImage image, TargetType type){
 		Graphics2D graphics = image.createGraphics();
+
+		switch(type){
+			case SPEED:{
+				break;
+			}
+
+			case QUALITY:{
+				graphics.setComposite(AlphaComposite.Src);
+				graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+				graphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+				graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				break;
+			}
+		}
+
 		graphics.drawImage(image, 0, 0, 128, 128, null);
 		graphics.dispose();
+	}
+
+	public static DownloadRunnable downloadVideo(String videoId){
+		DownloadRunnable runnable = new DownloadRunnable(videoId);
+		return runnable;
+	}
+
+	public static enum TargetType {
+		/**
+		 * If "SPEED", we don't perform any fancy edits to the picture.
+		 */
+		SPEED,
+		/**
+		 * If "QUALITY", we perform all the fancy edits.
+		 */
+		QUALITY
 	}
 
 }

@@ -1,5 +1,7 @@
 package net.yukkuricraft.tenko.imgmap.ffmpeg;
 
+import java.io.File;
+
 public class UnknownProvider extends Provider {
 
 	public UnknownProvider(){
@@ -7,8 +9,8 @@ public class UnknownProvider extends Provider {
 	}
 
 	@Override
-	public boolean execute(String id){
-		return false;
+	public File execute(String id, File target){
+		return null;
 	}
 
 	@Override

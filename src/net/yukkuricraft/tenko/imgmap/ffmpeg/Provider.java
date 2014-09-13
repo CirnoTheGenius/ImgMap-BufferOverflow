@@ -60,6 +60,6 @@ public abstract class Provider {
 		return FFMPEG_EXE.getAbsolutePath();
 	}
 
-	public abstract boolean execute(String video_id);
+	public abstract File execute(String video_id, File target);
 
 }

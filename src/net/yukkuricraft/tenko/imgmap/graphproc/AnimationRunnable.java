@@ -1,4 +1,47 @@
 package net.yukkuricraft.tenko.imgmap.graphproc;
 
-public class AnimationRunnable {
+import java.util.logging.Level;
+
+public class AnimationRunnable extends MultiUserRunnable {
+
+	private Object[][] packets;
+	private int index = 0;
+	private int delay;
+
+	public AnimationRunnable(Object[][] packets, int delay){
+		this.packets = packets;
+		this.delay = delay;
+	}
+
+	@Override
+	public Thread stop(){
+		this.packets = null;
+		return super.stop();
+	}
+
+	@Override
+	public void running(){
+		this.index++;
+		if(this.index >= this.packets.length){
+			this.stop();
+		}
+
+		Object[] frame = packets[index];
+		if(frame != null){
+			flushChannels();
+
+			for(Object o : frame){
+				writePacket(o);
+			}
+
+			flushChannels();
+		}
+
+		try{
+			Thread.sleep(delay * 10);
+		} catch (InterruptedException e){
+			logger.log(Level.WARNING, "");
+		}
+	}
+
 }

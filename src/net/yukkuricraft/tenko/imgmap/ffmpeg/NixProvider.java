@@ -16,12 +16,12 @@ public class NixProvider extends Provider {
 	}
 
 	@Override
-	public boolean execute(String video_id){
+	public File execute(String video_id, File target){
 		try {
 			if(plugin.get() != null){
 				ProcessBuilder procbuild = new ProcessBuilder();
 				procbuild.directory(plugin.get().getDataFolder());
-				procbuild.command(nixArgs(video_id, new File(plugin.get().getLVideosDirectory(), video_id + ".gif")));
+				procbuild.command(nixArgs(video_id, target));
 				procbuild.redirectErrorStream(true);
 
 				Process process = procbuild.start();
@@ -31,13 +31,13 @@ public class NixProvider extends Provider {
 					logger.info(l);
 				}
 				reader.close();
-				return true;
+				return target;
 			} else {
 				throw new IllegalStateException("The primary plugin object was garbage collected! Is ImgMap loaded?");
 			}
 		} catch (Throwable t){
 			t.printStackTrace();
-			return false;
+			return null;
 		}
 	}
 

@@ -5,7 +5,6 @@ import net.yukkuricraft.tenko.imgmap.nms.ProxyChannel;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -27,25 +26,36 @@ public abstract class MultiUserRunnable extends AbstractSafeRunnable {
 		channels.put(player.getUniqueId(), channel);
 	}
 
+	@Override
+	public Thread stop(){
+		channels.clear();
+		return super.stop();
+	}
+
 	public void writePacket(Object packet){
 		for(ProxyChannel channel : channels.values()){
-			channel.sendPacket(packet);
+			if(channel.isOpen()){
+				channel.sendPacket(packet);
+			}
 		}
 	}
 
 	public void flushChannels(){
 		for(ProxyChannel channel : channels.values()){
-			channel.flush();
+			if(channel.isOpen()){
+				channel.flush();
+			}
 		}
 	}
 
-	public void removeDeadChannels(){
-		Iterator<Map.Entry<UUID, ProxyChannel>> iter = channels.entrySet().iterator();
-		while(iter.hasNext()){
-			if(!iter.next().getValue().isOpen()){
-				iter.remove();
+	public void checkState(){
+		for(ProxyChannel channel : this.channels.values()){
+			if(channel.isOpen()){
+				return;
 			}
 		}
+
+		this.stop();
 	}
 
 }
