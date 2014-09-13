@@ -1,6 +1,5 @@
 package net.yukkuricraft.tenko.imgmap.helper;
 
-import net.yukkuricraft.tenko.imgmap.ImgMap;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
@@ -9,7 +8,7 @@ import java.util.logging.Logger;
 
 public class MapHelper {
 
-	private static Logger logger = ImgMap.getInstance().getLogger();
+	private static Logger logger = Logger.getLogger("ImgMap");
 
 	private MapHelper(){
 		throw new InstantiationError("Attempted to create an instance of a helper class.");

@@ -1,22 +1,27 @@
 package net.yukkuricraft.tenko.imgmap.ffmpeg;
 
+import net.yukkuricraft.tenko.imgmap.ImgMap;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.logging.Logger;
 
 public abstract class Provider {
 
 	/*
-	"-i", "http://www.ytapi.com/?vid=" + YTAPIVideoObj.this.id + "&format=direct&itag=160", "-r", "10", "-threads", "0", "-vf", "scale=128:128,format=rgb8,format=rgb24", "-y",
+	"-i", "http://www.ytapi.com/?vid=" + YTAPIVideoObj.this.id + "&format=direct&itag=160",
+	"-r", "10", "-threads", "0", "-vf", "scale=128:128,format=rgb8,format=rgb24", "-y",
 	 */
 
 	protected Logger logger = Logger.getLogger("ImgMap-FFmpegProv");
 	private final File FFMPEG_EXE;
+	protected final WeakReference<ImgMap> plugin;
 
-	public Provider(File ffmpeg){
+	public Provider(ImgMap plugin, File ffmpeg){
 		this.FFMPEG_EXE = ffmpeg;
+		this.plugin = new WeakReference<ImgMap>(plugin);
 	}
 
 	public static final String[] DEFAULT_FFMPEG_ARGS = {
@@ -35,13 +40,13 @@ public abstract class Provider {
 		return args;
 	}
 
-	final String[] win32Args(String video_id, File output){
+	protected final String[] win32Args(String video_id, File output){
 		String[] defArgs = generateDefault(video_id, output);
 		ArrayUtils.add(defArgs, 0, getExecutablePath());
 		return defArgs;
 	}
 
-	final String[] nixArgs(String video_id, File output){
+	protected final String[] nixArgs(String video_id, File output){
 		String[] defArgs = generateDefault(video_id, output);
 		ArrayUtils.add(defArgs, 0, "./ffmpeg");
 		return defArgs;

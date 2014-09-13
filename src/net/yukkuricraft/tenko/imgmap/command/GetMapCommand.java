@@ -1,5 +1,6 @@
 package net.yukkuricraft.tenko.imgmap.command;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,8 +15,15 @@ public class GetMapCommand extends CommandHandler {
 	@Override
 	public void executeCommand(CommandSender sender, String[] arguments){
 		Player plyr = (Player)sender;
-		ItemStack stack = new ItemStack(Material.MAP);
-		stack.setDurability(Short.valueOf(arguments[0]));
+		ItemStack stack;
+
+		if(StringUtils.isNumeric(arguments[0])){
+			stack = new ItemStack(Material.MAP);
+			stack.setDurability(Short.valueOf(arguments[0]));
+		} else {
+			commandFailure(sender, "You need to provide a map ID.");
+			return;
+		}
 
 		ItemStack old = plyr.getInventory().getItemInHand();
 		if(old != null || old.getType() != Material.AIR){

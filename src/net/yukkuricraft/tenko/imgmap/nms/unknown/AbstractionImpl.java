@@ -1,9 +1,11 @@
 package net.yukkuricraft.tenko.imgmap.nms.unknown;
 
-import net.yukkuricraft.tenko.imgmap.nms.NMSHelper;
+import net.yukkuricraft.tenko.imgmap.nms.Abstraction;
+import net.yukkuricraft.tenko.imgmap.nms.ProxyChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
 import java.lang.reflect.Constructor;
@@ -11,7 +13,7 @@ import java.lang.reflect.Method;
 
 //Hacky attempt to support more than what I officially support.
 //This is probably bad for production servers.
-public class AbstractionImpl implements NMSHelper.Abstraction {
+public class AbstractionImpl implements Abstraction {
 
 	private final String VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 	private boolean canGenerate = false;
@@ -28,6 +30,9 @@ public class AbstractionImpl implements NMSHelper.Abstraction {
 	private Method m_getSavedMap;
 	private Method m_getHandle;
 
+	private Class<?> nmsPacket;
+	private Constructor<?> c_nmsPacket;
+
 	//MY EYES! THEY BURN!
 	{
 		try{
@@ -36,6 +41,7 @@ public class AbstractionImpl implements NMSHelper.Abstraction {
 			craftMapRenderer = Class.forName("org.bukkit.craftbukkit." + VERSION + ".map.CraftMapRenderer");
 			nmsItemStack = Class.forName("net.minecraft.server." + VERSION + ".ItemStack");
 			nmsItemWorldMap = Class.forName("net.minecraft.server." + VERSION + ".ItemWorldMap");
+			nmsPacket = Class.forName("net.minecraft.server." + VERSION + ".PacketPlayOutMap");
 
 			m_asNMSCopy = craftItemStack.getDeclaredMethod("asNMSCopy");
 			m_asNMSCopy.setAccessible(true);
@@ -51,6 +57,9 @@ public class AbstractionImpl implements NMSHelper.Abstraction {
 
 			c_craftMapRenderer = craftMapRenderer.getConstructor(Class.forName("org.bukkit.craftbukkit." + VERSION + ".map.CraftMapView"), Class.forName("net.minecraft.server." + VERSION + ".WorldMap"));
 			c_craftMapRenderer.setAccessible(true);
+
+			c_nmsPacket = nmsPacket.getConstructor(int.class, byte[].class);
+			c_nmsPacket.setAccessible(true);
 		} catch (ReflectiveOperationException e){
 			canGenerate = false;
 		}
@@ -66,6 +75,24 @@ public class AbstractionImpl implements NMSHelper.Abstraction {
 				Object nmsMap = nmsItemWorldMap.cast(m_getItem.invoke(nmsStack));
 				return (MapRenderer)c_craftMapRenderer.newInstance(null, m_getSavedMap.invoke(nmsMap, nmsStack, m_getHandle.invoke(world)));
 			} catch (ReflectiveOperationException e){
+				canGenerate = false;
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+
+	public ProxyChannel getChannel(Player player){
+		return null; // TODO: Implement this later.
+	}
+
+	@Override
+	public Object getPacketData(int id, byte[] data){
+		if(canGenerate){
+			try{
+				return c_nmsPacket.newInstance(id, data);
+			} catch (ReflectiveOperationException e) {
 				canGenerate = false;
 				return null;
 			}

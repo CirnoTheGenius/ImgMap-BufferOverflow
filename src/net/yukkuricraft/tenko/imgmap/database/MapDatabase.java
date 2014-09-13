@@ -1,6 +1,5 @@
 package net.yukkuricraft.tenko.imgmap.database;
 
-import net.yukkuricraft.tenko.imgmap.ImgMap;
 import net.yukkuricraft.tenko.imgmap.helper.IOHelper;
 import net.yukkuricraft.tenko.imgmap.helper.MapHelper;
 import net.yukkuricraft.tenko.imgmap.renderer.ImageRenderer;
@@ -21,12 +20,19 @@ import java.util.logging.Logger;
 // TODO: Come up with a better name.
 public class MapDatabase {
 
-	private File yamlFile = new File(ImgMap.getInstance().getDataFolder(), "maps.yml");
+	private File yamlFile;
 	private Map<String, Map<String, String>> inMemory = new HashMap<String, Map<String, String>>();
 	private YamlConfiguration yaml;
 	private final Logger logger = Logger.getLogger("ImgMap");
 
-	public MapDatabase(){
+	public MapDatabase(File yamlFile){
+		if(!yamlFile.getName().equalsIgnoreCase("maps.yml")){
+			logger.log(Level.WARNING, "Er... We're loading something other than maps.yml. A bit odd.");
+			logger.log(Level.WARNING, "File at hand: " + yamlFile);
+		}
+
+		this.yamlFile = yamlFile;
+
 		if(!yamlFile.exists()){
 			try{
 				yamlFile.createNewFile();
@@ -36,6 +42,7 @@ public class MapDatabase {
 		}
 
 		yaml = YamlConfiguration.loadConfiguration(yamlFile);
+		loadYaml();
 	}
 
 	public void updateMapImage(short id_, boolean isAnimated, boolean isLocal, String url){

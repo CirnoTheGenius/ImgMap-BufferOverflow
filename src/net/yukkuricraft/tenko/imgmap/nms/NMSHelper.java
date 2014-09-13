@@ -2,6 +2,7 @@ package net.yukkuricraft.tenko.imgmap.nms;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
 import java.util.logging.Logger;
@@ -27,11 +28,12 @@ public class NMSHelper {
 		return TRUE_HELPER.getDefaultRenderer(id, world);
 	}
 
-	public interface Abstraction {
-
-		public MapRenderer getDefaultRenderer(short id, World world);
-
+	public static Object getMapPacket(int id, byte[] data){
+		return TRUE_HELPER.getPacketData(id, data);
 	}
 
+	public static ProxyChannel getChannel(Player player){
+		return TRUE_HELPER.getChannel(player);
+	}
 
 }

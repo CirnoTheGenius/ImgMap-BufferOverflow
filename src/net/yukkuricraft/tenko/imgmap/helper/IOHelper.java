@@ -4,6 +4,7 @@ import net.yukkuricraft.tenko.imgmap.ImgMap;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +18,7 @@ public class IOHelper {
 	private static final Logger logger = Logger.getLogger("ImgMap");
 
 	public static Image fetchLocalImage(String fileName) throws IOException {
-		File file = new File(ImgMap.getInstance().getLImagesDirectory(), fileName);
+		File file = new File(ImgMap.getLImagesDirectory(), fileName);
 		if(!file.exists()){
 			throw new FileNotFoundException("Couldn't locate image file " + fileName);
 		}
@@ -40,4 +41,11 @@ public class IOHelper {
 		conn.disconnect();
 		return image;
 	}
+
+	public static void resizeImage(BufferedImage image){
+		Graphics2D graphics = image.createGraphics();
+		graphics.drawImage(image, 0, 0, 128, 128, null);
+		graphics.dispose();
+	}
+
 }

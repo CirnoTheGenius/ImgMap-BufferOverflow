@@ -3,7 +3,7 @@ package net.yukkuricraft.tenko.imgmap.ffmpeg;
 public class UnknownProvider extends Provider {
 
 	public UnknownProvider(){
-		super(null);
+		super(null, null);
 	}
 
 	@Override

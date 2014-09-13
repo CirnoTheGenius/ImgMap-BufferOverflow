@@ -5,18 +5,14 @@ import net.yukkuricraft.tenko.imgmap.ImgMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 
 /**
  * Note: This class is bound to fail on at least one *nix type. This was aimed towards any distribution built upon Linux.
  */
 public class NixProvider extends Provider {
 
-	private WeakReference<ImgMap> plugin;
-
 	public NixProvider(ImgMap plugin){
-		super(new File(plugin.getDataFolder(), "ffmpeg"));
-		this.plugin = new WeakReference<ImgMap>(plugin); //Keep a weak reference.
+		super(plugin, new File(plugin.getDataFolder(), "ffmpeg"));
 	}
 
 	@Override

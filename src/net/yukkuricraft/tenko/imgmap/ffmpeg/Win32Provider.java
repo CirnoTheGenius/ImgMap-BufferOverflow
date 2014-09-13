@@ -5,15 +5,11 @@ import net.yukkuricraft.tenko.imgmap.ImgMap;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 
 public class Win32Provider extends Provider {
 
-	private WeakReference<ImgMap> plugin;
-
-	public Win32Provider(ImgMap plugin){
-		super(new File(plugin.getDataFolder(), "ffmpeg.exe"));
-		this.plugin = new WeakReference<ImgMap>(plugin); //Keep a weak reference.
+	public Win32Provider(ImgMap plugin) {
+		super(plugin, new File(plugin.getDataFolder(), "ffmpeg.exe"));
 	}
 
 	@Override

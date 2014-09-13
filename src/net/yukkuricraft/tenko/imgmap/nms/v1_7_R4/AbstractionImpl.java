@@ -2,15 +2,25 @@ package net.yukkuricraft.tenko.imgmap.nms.v1_7_R4;
 
 import net.minecraft.server.v1_7_R4.ItemStack;
 import net.minecraft.server.v1_7_R4.ItemWorldMap;
-import net.yukkuricraft.tenko.imgmap.nms.NMSHelper;
+import net.minecraft.server.v1_7_R4.Packet;
+import net.minecraft.server.v1_7_R4.PacketPlayOutMap;
+import net.minecraft.util.io.netty.channel.Channel;
+import net.yukkuricraft.tenko.imgmap.nms.Abstraction;
+import net.yukkuricraft.tenko.imgmap.nms.ProxyChannel;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_7_R4.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.v1_7_R4.map.CraftMapRenderer;
+import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
-public class AbstractionImpl implements NMSHelper.Abstraction {
+import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
+import java.util.logging.Level;
+
+public class AbstractionImpl implements Abstraction {
 
 	@Override
 	public MapRenderer getDefaultRenderer(short id, World world){
@@ -21,6 +31,53 @@ public class AbstractionImpl implements NMSHelper.Abstraction {
 		// It _was_ stored in the past; it was just never used, passed, or interacted with.
 		// Don't ask why.
 		return new CraftMapRenderer(null, ((ItemWorldMap)nmsStack.getItem()).getSavedMap(nmsStack, ((CraftWorld)world).getHandle()));
+	}
+
+	@Override
+	public Object getPacketData(int id, byte[] data){
+		return new PacketPlayOutMap(id, data);
+	}
+
+	@Override
+	public ProxyChannel getChannel(Player player){
+		if(!(player instanceof CraftPlayer)){
+			Abstraction.LOGGER.log(Level.WARNING, "Detected Non-CraftBukkit player! Kinda odd that this plugin still functions.");
+			return null;
+		}
+
+		Object netty = ((CraftPlayer)player).getHandle().playerConnection.networkManager;
+		try{
+			Field f = netty.getClass().getDeclaredField("m");
+			f.setAccessible(true);
+			final Channel channel = (Channel)f.get(netty);
+			return new ProxyChannel(){
+
+				private WeakReference<Channel> oneechan = new WeakReference<Channel>(channel);
+
+				@Override
+				public void sendPacket(Object o){
+					if(isOpen() && o instanceof Packet){
+						oneechan.get().write(o);
+					}
+				}
+
+				@Override
+				public void flush(){
+					if(isOpen()){
+						oneechan.get().flush();
+					}
+				}
+
+				@Override
+				public boolean isOpen(){
+					return oneechan.get() != null && oneechan.get().isOpen();
+				}
+
+			};
+		} catch (ReflectiveOperationException e){
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 }

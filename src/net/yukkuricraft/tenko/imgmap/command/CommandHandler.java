@@ -30,7 +30,7 @@ public abstract class CommandHandler implements CommandExecutor {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] arguments){
 		if(!sender.hasPermission(permission)){
-			commandFailure(sender, "I'm sorry, " + sender.getName() + ", but I can't let you do that.");
+			commandFailure(sender, "The map is sad. The map wants you to do that, but it can't let you. The map will leak pixels :'(");
 			return true;
 		}
 
