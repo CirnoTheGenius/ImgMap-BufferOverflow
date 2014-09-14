@@ -13,7 +13,7 @@ import org.bukkit.map.MapView;
 
 public class DrawYTVideoCommand extends CommandHandler {
 
-	public DrawYTVideoCommand(int min, boolean player, String permission, String usage){
+	public DrawYTVideoCommand(){
 		super(1, true, "imgmap.drawytvideo", "/drawytvideo <YouTube Video ID>");
 	}
 

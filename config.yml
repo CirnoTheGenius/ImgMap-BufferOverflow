@@ -1,0 +1,9 @@
+###############################
+#  ImgMap Configuration File  #
+# (But you knew that already) #
+###############################
+
+# Allows the plugin to download videos.
+# The website used to pull videos is http://ytapi.com
+# Please review their terms of services before enabling.
+AllowVideos: false

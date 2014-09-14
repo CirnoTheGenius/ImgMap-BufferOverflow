@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
 
@@ -30,7 +30,7 @@ public class DrawImageCommand extends CommandHandler {
 		}
 
 		MapView view = Bukkit.getMap(stack.getDurability());
-		Image image;
+		BufferedImage image;
 		try {
 			if(ArrayUtils.contains(arguments, "-l")){
 				image = IOHelper.fetchLocalImage(arguments[0]);
@@ -43,6 +43,7 @@ public class DrawImageCommand extends CommandHandler {
 			return;
 		}
 
+		IOHelper.resizeImage(image);
 		MapHelper.removeRenderers(view);
 		view.addRenderer(new ImageRenderer(image));
 		((Player)sender).sendMap(view); // Update the map now.

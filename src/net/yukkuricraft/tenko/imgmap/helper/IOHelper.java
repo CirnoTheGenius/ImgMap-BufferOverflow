@@ -18,7 +18,7 @@ public class IOHelper {
 
 	private static final Logger logger = Logger.getLogger("ImgMap");
 
-	public static Image fetchLocalImage(String fileName) throws IOException {
+	public static BufferedImage fetchLocalImage(String fileName) throws IOException {
 		File file = new File(ImgMap.getLImagesDirectory(), fileName);
 		if(!file.exists()){
 			throw new FileNotFoundException("Couldn't locate image file " + fileName);
@@ -27,18 +27,18 @@ public class IOHelper {
 		return ImageIO.read(file);
 	}
 
-	public static Image fetchImage(String url) throws IOException {
+	public static BufferedImage fetchImage(String url) throws IOException {
 		return fetchImage(new URL(url));
 	}
 
-	public static Image fetchImage(URL url) throws IOException {
+	public static BufferedImage fetchImage(URL url) throws IOException {
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		int response = conn.getResponseCode();
 		if(!(response >= 200 && response <= 207)){
 			logger.log(Level.WARNING, "Received HTTP response code " + response + ". Attempting to read image anyways.");
 		}
 
-		Image image = ImageIO.read(conn.getInputStream());
+		BufferedImage image = ImageIO.read(conn.getInputStream());
 		conn.disconnect();
 		return image;
 	}

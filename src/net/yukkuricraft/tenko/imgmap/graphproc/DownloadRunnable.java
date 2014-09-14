@@ -1,7 +1,7 @@
 package net.yukkuricraft.tenko.imgmap.graphproc;
 
+import net.minecraft.util.org.apache.commons.io.IOUtils;
 import net.yukkuricraft.tenko.imgmap.ImgMap;
-import org.apache.commons.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;

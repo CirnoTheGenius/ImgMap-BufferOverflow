@@ -35,7 +35,7 @@ public class AbstractionImpl implements Abstraction {
 
 	@Override
 	public Object getPacketData(int id, byte[] data){
-		return new PacketPlayOutMap(id, data);
+		return new PacketPlayOutMap(id, data, (byte)0);
 	}
 
 	@Override

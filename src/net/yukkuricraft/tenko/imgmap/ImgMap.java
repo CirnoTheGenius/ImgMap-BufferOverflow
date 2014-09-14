@@ -1,9 +1,14 @@
 package net.yukkuricraft.tenko.imgmap;
 
+import net.yukkuricraft.tenko.imgmap.command.ClearMapCommand;
+import net.yukkuricraft.tenko.imgmap.command.DrawImageCommand;
+import net.yukkuricraft.tenko.imgmap.command.DrawYTVideoCommand;
+import net.yukkuricraft.tenko.imgmap.command.GetMapCommand;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.NixProvider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.Provider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.UnknownProvider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.Win32Provider;
+import net.yukkuricraft.tenko.imgmap.nms.SpigotProtocolFix;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -25,11 +30,22 @@ public class ImgMap extends JavaPlugin {
 
 	@Override
 	public void onEnable(){
+		try{
+			new SpigotProtocolFix();
+		} catch (Throwable e){
+			e.printStackTrace();
+		}
 		videos_dir = dir("localVideos");
 		images_dir = dir("localImages");
 
 		this.saveDefaultConfig();
 		allowVideos = this.getConfig().getBoolean("AllowVideos");
+
+		getCommand("drawimage").setExecutor(new DrawImageCommand());
+		getCommand("clearmap").setExecutor(new ClearMapCommand());
+		getCommand("drawytvideo").setExecutor(new DrawYTVideoCommand());
+		getCommand("getmap").setExecutor(new GetMapCommand());
+		getCommand("fixmap").setExecutor(new ClearMapCommand());
 
 		setupFFmpeg();
 	}
@@ -65,7 +81,7 @@ public class ImgMap extends JavaPlugin {
 	public void setupFFmpeg(){
 		Provider provider;
 		String os = System.getProperty("os.name");
-		if(os.contains("win")){
+		if(os.contains("win") || os.contains("Windows")){
 			getLogger().info("Detected Windows environment.");
 			provider = new Win32Provider(this);
 		} else if(os.contains("nix") || os.contains("aix") || os.contains("nux")){
@@ -76,7 +92,7 @@ public class ImgMap extends JavaPlugin {
 			getLogger().info("Detected OSX/Mac environment. ImgMap does not officially support OSX/Mac; videos may or may not work.");
 			provider = new NixProvider(this); // Let's assume it's a *nix environment since OSX is built upon Linux.
 		} else {
-			getLogger().warning("Detected unknown environment. Failed to provide suitable FFmpeg interface.");
+			getLogger().warning("Detected unknown environment. Failed to provide suitable FFmpeg interface for " + os + ".");
 			provider = new UnknownProvider();
 		}
 

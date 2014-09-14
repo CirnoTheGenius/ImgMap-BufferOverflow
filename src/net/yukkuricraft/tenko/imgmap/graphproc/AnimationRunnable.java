@@ -38,9 +38,9 @@ public class AnimationRunnable extends MultiUserRunnable {
 		}
 
 		try{
-			Thread.sleep(delay * 10);
+			Thread.sleep(delay * 2);
 		} catch (InterruptedException e){
-			logger.log(Level.WARNING, "");
+			logger.log(Level.WARNING, "Something told us to wake up before the animation ended!");
 		}
 	}
 

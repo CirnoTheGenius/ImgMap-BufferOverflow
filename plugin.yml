@@ -1,0 +1,20 @@
+name: ImgMap-BufferOverflow
+version: 0.1
+main: net.yukkuricraft.tenko.imgmap.ImgMap
+
+commands:
+    drawimage:
+        description: Renders an image on the map the commander is holding.
+        usage: /drawimage <url>
+    clearmap:
+        description: Removes the image renderer and replaces it with the default world renderer.
+        usage: /clearmap
+    getmap:
+        description: Gets a map by its ID.
+        usage: /getmap <id>
+    drawytvideo:
+        description: Downloads and renders a YouTube video using ytapi.com.
+        usage: /drawytvideo <youtube id>
+    fixmap:
+        description: Deprecated. See "/clearmap".
+        usage: /fixmap <id>

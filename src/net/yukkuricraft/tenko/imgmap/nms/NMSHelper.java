@@ -14,12 +14,23 @@ public class NMSHelper {
 
 	static {
 		if(TRUE_HELPER == null){
-			String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-			try{
-				Class<?> klass = Class.forName("net.yukkuricraft.tenko.nms." + version + ".AbstractionImpl");
-				TRUE_HELPER = (Abstraction)klass.newInstance();
-			} catch (Throwable t){
-				LOGGER.warning("Could not find a suitable implementation for handling NMS.");
+			if(Bukkit.getVersion().contains("Spigot") && (Bukkit.getVersion().contains("1.7.9") || Bukkit.getVersion().contains("1.7.10"))){
+				try {
+					Class<?> klass = SpigotProtocolFix.getSpigotClass();
+					TRUE_HELPER = (Abstraction)klass.newInstance();
+				} catch (ReflectiveOperationException e){
+					LOGGER.warning("Failed to provide a NMS helper for Spigot 1.7-1.8's protocol hack.");
+					LOGGER.warning("Full CraftServer package name: " + Bukkit.getServer().getClass().getPackage().getName());
+				}
+			} else {
+				String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+				try{
+					Class<?> klass = Class.forName("net.yukkuricraft.tenko.imgmap.nms." + version + ".AbstractionImpl");
+					TRUE_HELPER = (Abstraction)klass.newInstance();
+				} catch (ReflectiveOperationException e) {
+					LOGGER.warning("Could not find a suitable implementation for handling NMS version " + version + ".");
+					LOGGER.warning("Full CraftServer package name: " + Bukkit.getServer().getClass().getPackage().getName());
+				}
 			}
 		}
 	}

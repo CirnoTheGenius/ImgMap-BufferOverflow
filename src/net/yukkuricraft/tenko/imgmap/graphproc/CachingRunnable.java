@@ -1,17 +1,13 @@
 package net.yukkuricraft.tenko.imgmap.graphproc;
 
-import com.sun.imageio.plugins.gif.GIFImageReader;
-import com.sun.imageio.plugins.gif.GIFImageReaderSpi;
 import net.yukkuricraft.tenko.imgmap.helper.IOHelper;
 import net.yukkuricraft.tenko.imgmap.helper.MapHelper;
 import net.yukkuricraft.tenko.imgmap.nms.NMSHelper;
+import net.yukkuricraft.tenko.imgmap.objs.GifDecoder;
 
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.metadata.IIOMetadata;
-import javax.imageio.metadata.IIOMetadataNode;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,7 +19,7 @@ public class CachingRunnable implements Runnable {
 
 	private final static Logger logger = Logger.getLogger("ImgMap");
 	private final File file;
-	private final ImageReader reader = new GIFImageReader(new GIFImageReaderSpi()); // A bit unsafe since it's com.sun...
+	private final GifDecoder decoder = new GifDecoder();
 	private final int id;
 	private int delayMilliseconds;
 	private Object[][] packets;
@@ -49,27 +45,13 @@ public class CachingRunnable implements Runnable {
 		ExecutorService service = Executors.newCachedThreadPool(); // Pretty sure this is JRE7...
 		int numFrames;
 		try{
-			reader.setInput(ImageIO.createImageInputStream(file));
-			numFrames = reader.getNumImages(true);
+			decoder.read(new FileInputStream(file));
 		} catch (IOException e){
 			e.printStackTrace();
 			return;
 		}
-
-		//A block to obtain the delay in milliseconds between frames.
-		{
-			try{
-				IIOMetadata metadata = reader.getImageMetadata(0);
-				IIOMetadataNode node = (IIOMetadataNode)metadata.getAsTree(metadata.getNativeMetadataFormatName());
-				for(int i = 0; i < node.getLength(); i++){
-					if(node.item(i).getNodeName().equalsIgnoreCase("GraphicControlExtension")){
-						delayMilliseconds = Integer.valueOf(((IIOMetadataNode)node.item(i)).getAttribute("delayTime"));
-					}
-				}
-			} catch (IOException e){
-				delayMilliseconds = 10;
-			}
-		}
+		numFrames = decoder.getFrameCount();
+		this.delayMilliseconds = decoder.getDelay(1); //Grab some sample from the second frame.
 
 		packets = new Object[numFrames][128];
 
@@ -80,18 +62,12 @@ public class CachingRunnable implements Runnable {
 
 				@Override
 				public void run(){
-					BufferedImage image;
-
-					try{
-						image = reader.read(index);
-					} catch (IOException e){
-						e.printStackTrace();;
-						return;
-					}
+					BufferedImage image = decoder.getFrame(index);
 
 					IOHelper.resizeImage(image); //Reisze it down to 128x128. (Let's test it with QUALITY resizes!)
 					for(int x=0; x < 128; x++){
 						byte[] row = new byte[131];
+						row[1] = (byte)x;
 
 						for(int y=0; y < 128; y++){
 							row[y+3] = MapHelper.matchColor(image.getRGB(x, y));
@@ -100,6 +76,8 @@ public class CachingRunnable implements Runnable {
 						//I think this works?
 						packets[index][x] = NMSHelper.getMapPacket(id, row);
 					}
+
+					image.flush();
 				}
 			});
 		}
@@ -111,7 +89,7 @@ public class CachingRunnable implements Runnable {
 			logger.log(Level.SEVERE, "We were woken up early!", e);
 			return;
 		}
-		reader.dispose(); //I hope this doesn't leak.
+		decoder.dispose();
 	}
 
 }
