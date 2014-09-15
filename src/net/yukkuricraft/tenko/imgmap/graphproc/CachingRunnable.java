@@ -42,7 +42,7 @@ public class CachingRunnable implements Runnable {
 	 */
 	@Override
 	public void run(){
-		ExecutorService service = Executors.newCachedThreadPool(); // Pretty sure this is JRE7...
+		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2); // Pretty sure this is JRE7...
 		int numFrames;
 		try{
 			decoder.read(new FileInputStream(file));
@@ -62,6 +62,8 @@ public class CachingRunnable implements Runnable {
 
 				@Override
 				public void run(){
+					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+
 					BufferedImage image = decoder.getFrame(index);
 
 					IOHelper.resizeImage(image); //Reisze it down to 128x128. (Let's test it with QUALITY resizes!)

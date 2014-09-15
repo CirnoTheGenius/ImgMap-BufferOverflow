@@ -14,6 +14,11 @@ public class UnknownProvider extends Provider {
 	}
 
 	@Override
+	public File executeNonYouTube(String id, File target){
+		return null;
+	}
+
+	@Override
 	public boolean isAvailable(){
 		return false;
 	}

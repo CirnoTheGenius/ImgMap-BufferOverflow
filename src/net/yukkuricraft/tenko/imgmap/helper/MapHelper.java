@@ -1,5 +1,6 @@
 package net.yukkuricraft.tenko.imgmap.helper;
 
+import net.yukkuricraft.tenko.imgmap.renderer.ContinuousRenderer;
 import org.bukkit.map.MapPalette;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
@@ -21,7 +22,10 @@ public class MapHelper {
 	public static void removeRenderers(MapView view){
 		Iterator<MapRenderer> iter_mr = view.getRenderers().iterator();
 		while(iter_mr.hasNext()){
-			iter_mr.next();
+			MapRenderer renderer = iter_mr.next();
+			if(renderer instanceof ContinuousRenderer){
+				((ContinuousRenderer)renderer).stopRendering();
+			}
 			iter_mr.remove();
 		}
 	}

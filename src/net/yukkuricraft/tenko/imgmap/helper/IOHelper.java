@@ -1,7 +1,6 @@
 package net.yukkuricraft.tenko.imgmap.helper;
 
 import net.yukkuricraft.tenko.imgmap.ImgMap;
-import net.yukkuricraft.tenko.imgmap.graphproc.DownloadRunnable;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -66,11 +65,6 @@ public class IOHelper {
 
 		graphics.drawImage(image, 0, 0, 128, 128, null);
 		graphics.dispose();
-	}
-
-	public static DownloadRunnable downloadVideo(String videoId){
-		DownloadRunnable runnable = new DownloadRunnable(videoId);
-		return runnable;
 	}
 
 	public static enum TargetType {

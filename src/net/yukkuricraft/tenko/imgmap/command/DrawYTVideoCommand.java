@@ -1,5 +1,6 @@
 package net.yukkuricraft.tenko.imgmap.command;
 
+import net.minecraft.util.org.apache.commons.lang3.ArrayUtils;
 import net.yukkuricraft.tenko.imgmap.ImgMap;
 import net.yukkuricraft.tenko.imgmap.graphproc.DownloadRunnable;
 import net.yukkuricraft.tenko.imgmap.graphproc.ThreadCallback;
@@ -14,7 +15,7 @@ import org.bukkit.map.MapView;
 public class DrawYTVideoCommand extends CommandHandler {
 
 	public DrawYTVideoCommand(){
-		super(1, true, "imgmap.drawytvideo", "/drawytvideo <YouTube Video ID>");
+		super(1, true, "imgmap.drawytvideo", "/drawytvideo <YouTube Video ID> [-n if non-youtube source; must be a direct link to video]");
 	}
 
 	@Override
@@ -37,7 +38,8 @@ public class DrawYTVideoCommand extends CommandHandler {
 		}
 
 		final MapView view = Bukkit.getMap(plyr.getItemInHand().getDurability());
-		final DownloadRunnable runnable = new DownloadRunnable(arguments[0]);
+		final DownloadRunnable runnable = new DownloadRunnable(arguments[0], ArrayUtils.contains(arguments, "-n"));
+		Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		ThreadCallback.createThread(runnable, new Runnable(){
 
 			@Override

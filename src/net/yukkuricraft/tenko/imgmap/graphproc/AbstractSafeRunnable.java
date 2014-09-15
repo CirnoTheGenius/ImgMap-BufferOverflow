@@ -39,6 +39,14 @@ public abstract class AbstractSafeRunnable implements Runnable {
 	}
 
 	/**
+	 * Get a thread
+	 * @return The thread at hand.
+	 */
+	public Thread getThread(){
+		return thread.get();
+	}
+
+	/**
 	 * Attempts to stop a thread and returns it, or if it hasn't been started, returns null.
 	 * There is no guarantee the thread has stopped.
 	 * @return The current thread running or null, if the thread is null or is dead.

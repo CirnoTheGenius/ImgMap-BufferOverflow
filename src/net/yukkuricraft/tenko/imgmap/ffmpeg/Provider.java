@@ -23,18 +23,23 @@ public abstract class Provider {
 		this.plugin = new WeakReference<ImgMap>(plugin);
 	}
 
+	// Ehehehe... Let's try 24FPS.
+	// 24FPS worked finely. My main concern was that it brought me down from 260FPS to 80FPS.
+	// Let's try 30?
+	// 30 is too insane. It does the same as 24FPS, but it runs too quickly. I guess
+	// the safe FPS regions is 10 to 24.
 	public static final String[] DEFAULT_FFMPEG_ARGS = {
 			"<insert program dir here>",
-			"-i", "http://www.ytapi.com/?vid=$VID_ID$&format=direct&itag=160",
+			"-i", "<insert url>",
 			"-r", "10",
 			"-threads", "0",
 			"-vf", "scale=128:128",
-			"-y", "<insert stuffs>"
+			"-y", "<insert output>"
 	};
 
 	private final String[] generateDefault(String vid, File o){
 		String[] args = Arrays.copyOf(DEFAULT_FFMPEG_ARGS, DEFAULT_FFMPEG_ARGS.length);
-		args[2] = args[2].replace("$VID_ID$", vid);
+		args[2] = "http://www.ytapi.com/?vid=" + vid + "&format=direct&itag=160";
 		args[args.length-1] = o.getAbsolutePath();
 		return args;
 	}
@@ -60,5 +65,7 @@ public abstract class Provider {
 	}
 
 	public abstract File execute(String video_id, File target);
+
+	public abstract File executeNonYouTube(String url, File target);
 
 }

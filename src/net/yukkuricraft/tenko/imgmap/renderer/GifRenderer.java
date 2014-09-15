@@ -48,7 +48,7 @@ public class GifRenderer extends MapRenderer implements ContinuousRenderer {
 
 	@Override
 	public void stopRendering(){
-
+		animation.stop();
 	}
 
 }

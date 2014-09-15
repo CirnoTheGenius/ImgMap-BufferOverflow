@@ -15,54 +15,65 @@ public class DownloadRunnable implements Runnable {
 
 	private String video_id;
 	private File result;
+	private boolean nonYouTubeVideo = false;
 
-	public DownloadRunnable(String video_id){
+	public DownloadRunnable(String video_id, boolean nonyt){
 		this.video_id = video_id;
 		this.result = new File(ImgMap.getLVideosDirectory(), video_id + ".gif");
+		this.nonYouTubeVideo = nonyt;
 	}
 
 	@Override
 	public void run(){
-		if(result.exists()){
-			return; // The video is already downloaded. Invalid ID or not, it's a gif file that exists.
-		}
-
-		//Test if the video exists.
-		InputStream stream = null;
-		InputStreamReader reader = null;
-		try{
-			URL url = new URL("http://gdata.youtube.com/feeds/api/videos/" + video_id);
-			stream = url.openStream();
-			reader = new InputStreamReader(stream);
-
-			String str = IOUtils.readLines(reader).get(0);
-			if(str.trim().startsWith("Invalid id")){
-				Logger.getLogger("ImgMap").log(Level.WARNING, "Invalid ID (" + video_id + ")!"); //TODO: Notify sender, not console.
+		if(nonYouTubeVideo){
+			result = new File(ImgMap.getLVideosDirectory(), video_id.substring(video_id.lastIndexOf('/')+1) + ".gif");
+			if(result.exists()){
+				return;
 			}
 
-			reader.close();
-			stream.close();
-		} catch (IOException e){
-			return;
-		} finally {
-			if(stream != null){
-				try{
-					stream.close();
-				} catch (IOException e){
-					e.printStackTrace();
+			ImgMap.getFFmpegProvider().executeNonYouTube(video_id, result); // This blocks.
+		} else {
+			if(result.exists()){
+				return;
+			}
+
+			//Test if the video exists.
+			InputStream stream = null;
+			InputStreamReader reader = null;
+			try{
+				URL url = new URL("http://gdata.youtube.com/feeds/api/videos/" + video_id);
+				stream = url.openStream();
+				reader = new InputStreamReader(stream);
+
+				String str = IOUtils.readLines(reader).get(0);
+				if(str.trim().startsWith("Invalid id")){
+					Logger.getLogger("ImgMap").log(Level.WARNING, "Invalid ID (" + video_id + ")!"); //TODO: Notify sender, not console.
+				}
+
+				reader.close();
+				stream.close();
+			} catch (IOException e) {
+				return;
+			} finally {
+				if(stream != null){
+					try{
+						stream.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+				if(reader != null){
+					try{
+						reader.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
-			if(reader != null){
-				try {
-					reader.close();
-				} catch (IOException e){
-					e.printStackTrace();
-				}
-			}
+			ImgMap.getFFmpegProvider().execute(video_id, result); // This blocks.
 		}
-
-		ImgMap.getFFmpegProvider().execute(video_id, result); // This blocks.
 	}
 
 	public File getFile(){
