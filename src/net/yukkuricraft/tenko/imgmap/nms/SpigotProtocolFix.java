@@ -130,7 +130,7 @@ public class SpigotProtocolFix {
 			mv.visitEnd();
 		}
 		{
-			mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "getChannel", "(Lorg/bukkit/entity/Player;)Lnet/yukkuricraft/tenko/imgmap/nms/ProxyChannel;", null, null);
+			mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "newChannel", "(Lorg/bukkit/entity/Player;)Lnet/yukkuricraft/tenko/imgmap/nms/ProxyChannel;", null, null);
 			mv.visitCode();
 			Label l0 = new Label();
 			Label l1 = new Label();

@@ -83,7 +83,7 @@ public class AbstractionImpl implements Abstraction {
 		}
 	}
 
-	public ProxyChannel getChannel(Player player){
+	public ProxyChannel newChannel(Player player){
 		return null; // TODO: Implement this later.
 	}
 

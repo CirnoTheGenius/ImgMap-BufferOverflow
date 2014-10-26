@@ -36,7 +36,7 @@ public class AbstractionImpl implements Abstraction {
 	}
 
 	@Override
-	public ProxyChannel getChannel(Player player){
+	public ProxyChannel newChannel(Player player){
 		if(!(player instanceof CraftPlayer)){
 			Abstraction.LOGGER.log(Level.WARNING, "Detected Non-CraftBukkit player! Kinda odd that this plugin still functions.");
 			return null;

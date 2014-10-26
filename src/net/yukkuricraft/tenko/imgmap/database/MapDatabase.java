@@ -5,6 +5,7 @@ import net.yukkuricraft.tenko.imgmap.helper.MapHelper;
 import net.yukkuricraft.tenko.imgmap.renderer.ImageRenderer;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,6 +26,29 @@ public class MapDatabase {
 	private Map<String, Map<String, String>> inMemory = new HashMap<String, Map<String, String>>();
 	private YamlConfiguration yaml;
 	private final Logger logger = Logger.getLogger("ImgMap");
+
+	// Just some test code. If you want to run it, compile it, and run it twice.
+	public static void main(String[] arguments){
+		File file;
+		final MapDatabase base = new MapDatabase(file = new File("maps.yml"));
+		System.out.println(file.getAbsolutePath());
+		final Random random = new Random();
+		for(int i=0; i < Runtime.getRuntime().availableProcessors(); i++){
+			final int iCopy = i;
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					byte[] str = new byte[5];
+					for(int i = (iCopy*1000); i < (iCopy*1000)+1000; i++){
+						random.nextBytes(str);
+						base.updateMapImage((short)i, random.nextBoolean(), random.nextBoolean(), Long.toString(random.nextLong(), 32));
+					}
+					base.saveYaml();
+				}
+			}).run();
+		}
+	}
 
 	public MapDatabase(File yamlFile){
 		if(!yamlFile.getName().equalsIgnoreCase("maps.yml")){
@@ -70,21 +95,29 @@ public class MapDatabase {
 
 	public void loadYaml(){
 		ConfigurationSection section = yaml.getConfigurationSection("maps");
+		if(section == null){
+			yaml.createSection("maps");
+			saveYaml();
+			return;
+		}
+
 		//I trust that YAML can retain Maps.
 		Map<String, Object> onDisk = section.getValues(false);
 		for(Map.Entry<String, Object> entry : onDisk.entrySet()){
 			try{
 				short id = Short.valueOf(entry.getKey());
-				Map<String, String> data = (Map<String, String>)entry.getValue();
+				MemorySection data = (MemorySection)entry.getValue();
 
-				String imageURL = data.get("image");
-				boolean local = Boolean.valueOf(data.get("local"));
-				boolean animated = Boolean.valueOf(data.get("animated"));
+				String imageURL = data.getString("image");
+				boolean local = Boolean.valueOf(data.getString("local"));
+				boolean animated = Boolean.valueOf(data.getString("animated"));
 
 				if(imageURL == null){
 					logger.log(Level.WARNING, "There was a problem while parsing map ID " + id + ": There was no image associated with it.");
 					continue; // Invalid data type.
 				}
+
+				System.out.println("loaded id " + id + " with values imageURL=" + imageURL + ",local=" + local + ",animated=" + animated);
 
 				MapView view = Bukkit.getMap(id);
 				MapHelper.removeRenderers(view);

@@ -18,7 +18,7 @@ import java.net.URL;
 public class DrawImageCommand extends CommandHandler {
 
 	public DrawImageCommand(){
-		super(1, true, "imgmap.drawimage", "/drawimage <url> [-l (if image is local)] [-s (to save)]");
+		super(1, true, "imgmap.command.drawimage", "/drawimage <url> [-l (if image is local)] [-s (to save)]");
 	}
 
 	@Override

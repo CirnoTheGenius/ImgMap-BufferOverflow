@@ -4,6 +4,7 @@ import com.avaje.ebean.enhance.asm.*;
 
 /*
  * Code based off of http://stackoverflow.com/questions/11770353/java-asm-bytecode-modification-changing-method-bodies
+ * Un-used and untested.
  */
 public class MethodReplacer extends ClassWriter implements Opcodes{
 

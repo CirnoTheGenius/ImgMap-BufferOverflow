@@ -1,14 +1,10 @@
 package net.yukkuricraft.tenko.imgmap;
 
-import net.yukkuricraft.tenko.imgmap.command.ClearMapCommand;
-import net.yukkuricraft.tenko.imgmap.command.DrawImageCommand;
-import net.yukkuricraft.tenko.imgmap.command.DrawYTVideoCommand;
-import net.yukkuricraft.tenko.imgmap.command.GetMapCommand;
+import net.yukkuricraft.tenko.imgmap.command.*;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.NixProvider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.Provider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.UnknownProvider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.Win32Provider;
-import net.yukkuricraft.tenko.imgmap.nms.SpigotProtocolFix;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -30,11 +26,6 @@ public class ImgMap extends JavaPlugin {
 
 	@Override
 	public void onEnable(){
-		try{
-			new SpigotProtocolFix();
-		} catch (Throwable e){
-			e.printStackTrace();
-		}
 		videos_dir = dir("localVideos");
 		images_dir = dir("localImages");
 
@@ -78,7 +69,7 @@ public class ImgMap extends JavaPlugin {
 		return file;
 	}
 
-	public void setupFFmpeg(){
+	public void setupFFmpeg() {
 		Provider provider;
 		String os = System.getProperty("os.name");
 		if(os.contains("win") || os.contains("Windows")){
@@ -92,7 +83,8 @@ public class ImgMap extends JavaPlugin {
 			getLogger().info("Detected OSX/Mac environment. ImgMap does not officially support OSX/Mac; videos may or may not work.");
 			provider = new NixProvider(this); // Let's assume it's a *nix environment since OSX is built upon Linux.
 		} else {
-			getLogger().warning("Detected unknown environment. Failed to provide suitable FFmpeg interface for " + os + ".");
+			getLogger().warning("Detected unknown environment. Failed to provide suitable FFmpeg interface for " + os + ". Videos have been disabled.");
+			getLogger().warning("Please post back onto the ImgMap plugin page with your OS. Depending on demand, official support may be provided. Otherwise, you can try tricking ImgMap into loading a provider by restarting the server with \"-Dos.name=[win32, nix, osx]\", however, this is highly UNRECOMMENDED since if other plugins use the same method of OS detection, it will cause them to see the fake OS.");
 			provider = new UnknownProvider();
 		}
 

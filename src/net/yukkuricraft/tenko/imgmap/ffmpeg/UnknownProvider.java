@@ -9,23 +9,13 @@ public class UnknownProvider extends Provider {
 	}
 
 	@Override
-	public File execute(String id, File target){
-		return null;
-	}
-
-	@Override
-	public File executeNonYouTube(String id, File target){
-		return null;
+	public void execute(String str, File file){
+		return;
 	}
 
 	@Override
 	public boolean isAvailable(){
 		return false;
-	}
-
-	@Override
-	public String getExecutablePath(){
-		return "";
 	}
 
 }

@@ -1,79 +1,31 @@
 package net.yukkuricraft.tenko.imgmap.graphproc;
 
-import net.minecraft.util.org.apache.commons.io.IOUtils;
 import net.yukkuricraft.tenko.imgmap.ImgMap;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class DownloadRunnable implements Runnable {
 
-	private String video_id;
+	private String url;
 	private File result;
-	private boolean nonYouTubeVideo = false;
 
-	public DownloadRunnable(String video_id, boolean nonyt){
-		this.video_id = video_id;
-		this.result = new File(ImgMap.getLVideosDirectory(), video_id + ".gif");
-		this.nonYouTubeVideo = nonyt;
+	public DownloadRunnable(String url){
+		this.url = url;
+
+		if(url.indexOf('.') != -1){
+			result = new File(ImgMap.getLVideosDirectory(), url + ".gif");
+		} else {
+			result = new File(ImgMap.getLImagesDirectory(), url.substring(url.lastIndexOf('/'), url.length()));
+		}
 	}
 
 	@Override
 	public void run(){
-		if(nonYouTubeVideo){
-			result = new File(ImgMap.getLVideosDirectory(), video_id.substring(video_id.lastIndexOf('/')+1) + ".gif");
-			if(result.exists()){
-				return;
-			}
-
-			ImgMap.getFFmpegProvider().executeNonYouTube(video_id, result); // This blocks.
-		} else {
-			if(result.exists()){
-				return;
-			}
-
-			//Test if the video exists.
-			InputStream stream = null;
-			InputStreamReader reader = null;
-			try{
-				URL url = new URL("http://gdata.youtube.com/feeds/api/videos/" + video_id);
-				stream = url.openStream();
-				reader = new InputStreamReader(stream);
-
-				String str = IOUtils.readLines(reader).get(0);
-				if(str.trim().startsWith("Invalid id")){
-					Logger.getLogger("ImgMap").log(Level.WARNING, "Invalid ID (" + video_id + ")!"); //TODO: Notify sender, not console.
-				}
-
-				reader.close();
-				stream.close();
-			} catch (IOException e) {
-				return;
-			} finally {
-				if(stream != null){
-					try{
-						stream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-
-				if(reader != null){
-					try{
-						reader.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-
-			ImgMap.getFFmpegProvider().execute(video_id, result); // This blocks.
+		if(result.exists()){
+			return;
 		}
+
+		ImgMap.getFFmpegProvider().execute(url, result); // This blocks.
 	}
 
 	public File getFile(){

@@ -14,13 +14,13 @@ import org.bukkit.map.MapView;
 public class ClearMapCommand extends CommandHandler {
 
 	public ClearMapCommand(){
-		super(0, true, "imgmap.clearmap", "/clearmap [id]");
+		super(0, true, "imgmap.command.clearmap", "/clearmap [id]");
 	}
 
 	@Override
 	public void preExecution(Command command, CommandSender sender) {
 		if(command.getName().equalsIgnoreCase("fixmap")){
-			commandFailure(sender, "/fixmap is deprecated and is only retained for compatibility sake.");
+			commandFailure(sender, "/fixmap is deprecated and is only retained for compatibility sake. The new command is \"/clearmap\".");
 		}
 	}
 

@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 public class GetMapCommand extends CommandHandler {
 
 	public GetMapCommand(){
-		super(1, true, "imgmap.getmap", "/getmap <id>");
+		super(1, true, "imgmap.command.getmap", "/getmap <id>");
 	}
 
 	@Override

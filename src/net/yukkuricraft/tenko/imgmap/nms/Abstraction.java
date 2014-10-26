@@ -14,6 +14,6 @@ public interface Abstraction {
 
 	public Object getPacketData(int id, byte[] data);
 
-	public ProxyChannel getChannel(Player player);
+	public ProxyChannel newChannel(Player player);
 
 }

@@ -17,6 +17,7 @@ import java.util.logging.Level;
 
 public class AbstractionImpl implements Abstraction {
 
+	@Override
 	public MapRenderer getDefaultRenderer(short id, World world){
 		org.bukkit.inventory.ItemStack bukkitStack = new org.bukkit.inventory.ItemStack(Material.MAP);
 		bukkitStack.setDurability(id);
@@ -26,13 +27,13 @@ public class AbstractionImpl implements Abstraction {
 
 	@Override
 	public Object getPacketData(int id, byte[] data){
-		return new Packet131ItemData((short)0, (short)id, data); //THIS WILL FAIL!
+		return new Packet131ItemData((short)0, (short)id, data);
 		//If anyone is willing to help, what was the packet ID/construction for map packets
 		//back in 1.6.4? I'm assuming it's 131.
 	}
 
 	@Override
-	public ProxyChannel getChannel(final Player player){
+	public ProxyChannel newChannel(final Player player){
 		if(!(player instanceof CraftPlayer)){
 			Abstraction.LOGGER.log(Level.WARNING, "Detected Non-CraftBukkit player! Kinda odd that this plugin still functions.");
 			return null;

@@ -11,6 +11,7 @@ import java.lang.ref.SoftReference;
  *
  * This won't work for Reference objects for obvious
  * reasons.
+ *
  */
 public class UseOnceObject<T> {
 

@@ -6,6 +6,7 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -28,6 +29,19 @@ public class MapHelper {
 			}
 			iter_mr.remove();
 		}
+	}
+
+	public Object[] imageToPackets(BufferedImage image, boolean resize){
+		Object[] packets = new Object[128];
+		if(resize){
+			IOHelper.resizeImage(image);
+		}
+
+		for(int x=0; x < image.getWidth(); x++){
+
+		}
+
+		return packets;
 	}
 
 	// A bit confusing, but c1 is the int representation of the Color from frame.getRGB()
