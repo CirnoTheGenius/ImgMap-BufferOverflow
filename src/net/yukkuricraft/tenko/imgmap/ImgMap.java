@@ -1,6 +1,9 @@
 package net.yukkuricraft.tenko.imgmap;
 
-import net.yukkuricraft.tenko.imgmap.command.*;
+import net.yukkuricraft.tenko.imgmap.command.ClearMapCommand;
+import net.yukkuricraft.tenko.imgmap.command.DrawImageCommand;
+import net.yukkuricraft.tenko.imgmap.command.DrawYTVideoCommand;
+import net.yukkuricraft.tenko.imgmap.command.GetMapCommand;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.NixProvider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.Provider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.UnknownProvider;
@@ -53,7 +56,7 @@ public class ImgMap extends JavaPlugin {
 	 * Well, it's not really "streaming"...
 	 */
 	public static boolean isVideoStreamingEnabled(){
-		return allowVideos;
+		return allowVideos && ffmpegProvider.isAvailable();
 	}
 
 	public static Provider getFFmpegProvider(){
@@ -69,7 +72,7 @@ public class ImgMap extends JavaPlugin {
 		return file;
 	}
 
-	public void setupFFmpeg() {
+	public void setupFFmpeg(){
 		Provider provider;
 		String os = System.getProperty("os.name");
 		if(os.contains("win") || os.contains("Windows")){

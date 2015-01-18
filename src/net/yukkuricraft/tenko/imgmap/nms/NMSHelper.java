@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 public class NMSHelper {
@@ -13,6 +14,7 @@ public class NMSHelper {
 	private static final Logger LOGGER = Logger.getLogger("ImgMap");
 	private static Abstraction TRUE_HELPER; // I call it "TRUE_HELPER" because NMSHelper is like a mask for it.
 	private static final WeakHashMap<Player, ProxyChannel> cache = new WeakHashMap<Player, ProxyChannel>();
+	public static final AtomicBoolean IS_181 = new AtomicBoolean(false);
 
 	static {
 		if(TRUE_HELPER == null){
@@ -26,6 +28,10 @@ public class NMSHelper {
 				}
 			} else {
 				String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+				if(version.equalsIgnoreCase("v1_8_1")){
+					IS_181.compareAndSet(false, true);
+					LOGGER.warning("ImgMap for 1.8.1 is experimental!");
+				}
 				try{
 					Class<?> klass = Class.forName("net.yukkuricraft.tenko.imgmap.nms." + version + ".AbstractionImpl");
 					TRUE_HELPER = (Abstraction)klass.newInstance();

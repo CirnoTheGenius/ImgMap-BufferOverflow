@@ -38,7 +38,7 @@ public abstract class Provider {
 		String[] copy = Arrays.copyOf(DEFAULT_FFMPEG_ARGS, DEFAULT_FFMPEG_ARGS.length);
 		copy[0] = FFMPEG_EXECUTABLE.getAbsolutePath();
 		if(ytVideo){
-			// 240P MP4/V only (I don't use FLV because reasons. No seriously I don't have a valid reason not to).
+			// 240P MP4/V only
 			// Why the lowest quality? Lighter on server + we need to convert it to 128x128 anyways.
 			// ex. URL: http://www.ytapi.com/api/wO4pNpZ9syY/direct/133/
 			copy[2] = "http://www.ytapi.com/api/" + string + "/direct/133/";
@@ -46,6 +46,7 @@ public abstract class Provider {
 			copy[2] = string;
 		}
 		copy[copy.length - 1] = output.getAbsolutePath();
+		System.out.println(Arrays.toString(copy));
 		return copy;
 	}
 

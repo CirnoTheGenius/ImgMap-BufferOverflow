@@ -12,7 +12,7 @@ public class DownloadRunnable implements Runnable {
 	public DownloadRunnable(String url){
 		this.url = url;
 
-		if(url.indexOf('.') != -1){
+		if(url.indexOf('.') == -1){
 			result = new File(ImgMap.getLVideosDirectory(), url + ".gif");
 		} else {
 			result = new File(ImgMap.getLImagesDirectory(), url.substring(url.lastIndexOf('/'), url.length()));

@@ -28,7 +28,7 @@ public class AbstractionImpl implements Abstraction {
 	@Override
 	public Object getPacketData(int id, byte[] data){
 		return new Packet131ItemData((short)0, (short)id, data);
-		//If anyone is willing to help, what was the packet ID/construction for map packets
+		//If anyone is willing to help, what was the packet ID/construction for map packet
 		//back in 1.6.4? I'm assuming it's 131.
 	}
 

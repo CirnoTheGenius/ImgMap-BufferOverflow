@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,7 +43,18 @@ public class CachingRunnable implements Runnable {
 	 */
 	@Override
 	public void run(){
-		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2); // Pretty sure this is JRE7...
+		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors()/2, new ThreadFactory() {
+
+			@Override
+			public Thread newThread(Runnable r) {
+				Thread thread = new Thread(r);
+				thread.setPriority(Thread.MIN_PRIORITY);
+				thread.setDaemon(false);
+				return thread;
+			}
+
+		}); // Pretty sure this is JRE7...
+
 		int numFrames;
 		try{
 			decoder.read(new FileInputStream(file));
@@ -55,34 +67,24 @@ public class CachingRunnable implements Runnable {
 
 		packets = new Object[numFrames][128];
 
-		for(int i=0; i < numFrames; i++){
-			final int index = i;
-
-			service.execute(new Runnable(){
-
-				@Override
-				public void run(){
-					Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-
-					BufferedImage image = decoder.getFrame(index);
-
-					IOHelper.resizeImage(image); //Reisze it down to 128x128. (Let's test it with QUALITY resizes!)
-					for(int x=0; x < 128; x++){
-						byte[] row = new byte[131];
-						row[1] = (byte)x;
-
-						for(int y=0; y < 128; y++){
-							row[y+3] = MapHelper.matchColor(image.getRGB(x, y));
-						}
-
-						//I think this works?
-						packets[index][x] = NMSHelper.getMapPacket(id, row);
-					}
-
-					image.flush();
-				}
-			});
+		if(!NMSHelper.IS_181.get()){
+			Pre181Cacher _tmp;
+			for(int i=0; i < numFrames; i++){
+				_tmp = new Pre181Cacher();
+				_tmp.id = id;
+				_tmp.index = i;
+				service.execute(_tmp);
+			}
+		} else {
+			Current181Cacher _tmp;
+			for(int i=0; i < numFrames; i++){
+				_tmp = new Current181Cacher();
+				_tmp.id = id;
+				_tmp.index = i;
+				service.execute(_tmp);
+			}
 		}
+
 
 		service.shutdown();
 		try{
@@ -92,6 +94,60 @@ public class CachingRunnable implements Runnable {
 			return;
 		}
 		decoder.dispose();
+	}
+
+	private final class Pre181Cacher implements Runnable {
+
+		int id, index;
+
+		@Override
+		public void run(){
+			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+
+			BufferedImage image = decoder.getFrame(index);
+
+			IOHelper.resizeImage(image); //Reisze it down to 128x128. (Let's test it with QUALITY resizes!)
+			for(int x=0; x < 128; x++){
+				byte[] row = new byte[131];
+				row[1] = (byte)x;
+
+				for(int y=0; y < 128; y++){
+					row[y+3] = MapHelper.matchColor(image.getRGB(x, y));
+				}
+
+				//I think this works?
+				packets[index][x] = NMSHelper.getMapPacket(id, row);
+			}
+
+			image.flush();
+		}
+
+	}
+
+	private final class Current181Cacher implements Runnable {
+
+		int id, index;
+
+		@Override
+		public void run(){
+			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+
+			BufferedImage image = decoder.getFrame(index);
+
+			IOHelper.resizeImage(image); //Reisze it down to 128x128. (Let's test it with QUALITY resizes!)
+
+			byte[] data = new byte[128*128+3];
+			for(int x = 0; x < 128; x++){
+				for(int y = 0; y < 128; y++){
+					data[x+y+3] = MapHelper.matchColor(image.getRGB(x, y));
+				}
+			}
+
+			//Hacky.
+			packets[index][0] = NMSHelper.getMapPacket(id, data);
+			image.flush();
+		}
+
 	}
 
 }
