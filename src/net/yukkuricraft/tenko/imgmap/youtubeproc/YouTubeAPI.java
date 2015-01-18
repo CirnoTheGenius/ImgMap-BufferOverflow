@@ -18,98 +18,147 @@ import java.util.logging.Logger;
 
 public class YouTubeAPI {
 
-	private static final Logger LOGGER = Logger.getLogger("ImgMap-YouTubeAPI");
+	private static final Logger LOGGER = Logger.getLogger ( "ImgMap-YouTubeAPI" );
 
-	public static void main(String[] args){
-		getMP4Video("p1GHd4oVC-w");
+	public static void main ( String[] args ) {
+		for ( int i =0; i < 1000; i++ )
+		getMP4Video ( "p1GHd4oVC-w" );
 	}
 
-	public static void getMP4Video(String id){
+	public static void getMP4Video ( String id ) {
+		
 		String url = "http://youtube.com/get_video_info?hl=en&video_id=" + id;
+		
 		try{
-			HttpURLConnection httpConnection = (HttpURLConnection)new URL(url).openConnection();
+			HttpURLConnection httpConnection = ( HttpURLConnection ) new URL ( url ).openConnection();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			InputStreamReader stream = new InputStreamReader(httpConnection.getInputStream(), StandardCharsets.UTF_8);
+			InputStreamReader stream = new InputStreamReader ( httpConnection.getInputStream(), "UTF-8" );
 			int i;
 
-			while((i = stream.read()) != -1){
-				baos.write(i);
+			while ( ( i = stream.read() ) != -1 ) {
+				baos.write ( i );
 			}
+			
+			stream.close();
 
-			String videoInfo = new String(baos.toByteArray(), StandardCharsets.UTF_8);
+			String videoInfo = new String ( baos.toByteArray(), StandardCharsets.UTF_8 );
+			
+			baos.close();
+			
+			
 			// For some reason, YouTube encodes it twice?
 			// Oh, I see why. URLs within URLs is a pain.
-			String[] querySplitted = videoInfo.split("&");
-			Map<Integer, Map<String, String>> itagList = new HashMap<Integer, Map<String, String>>();
-			for(String child : querySplitted){
-				if(child.startsWith("url_encoded_fmt_stream_map=")){
-					if(child.contains("%3D")){
-						child = child.replace("%3D", "=");
+			String[] querySplitted = videoInfo.split ( "&" );
+			Map < Integer, Map < String, String > > itagList = new HashMap < Integer, Map < String, String > >();
+			
+			Iterator < String > streamMap;
+			Map < String, String > associatedData;
+			String[] aData;
+			String[] bData;
+			String[] cData;
+			String[] dData;
+			
+			String a;
+			String b;
+			String c;
+			String d;
+			
+			int itag;
+			
+			
+			
+			for ( String child : querySplitted ) {
+				if ( child.startsWith ( "url_encoded_fmt_stream_map=" ) ){
+					if ( child.contains ( "%3D" ) ){
+						child = child.replace ("%3D", "=");
 					}
 
-					if(child.contains("%26")){
-						child = child.replace("%26", "&");
+					if ( child.contains ( "%26" ) ) {
+						child = child.replace ( "%26", "&" );
 					}
 
-					if(child.contains("%2C")){
-						child = child.replace("%2C", "&");
+					if ( child.contains ( "%2C" ) ) {
+						child = child.replace ( "%2C", "&" );
 					}
 
-					System.out.println(child);
-					Iterator<String> streamMap = Arrays.asList(URLDecoder.decode(child, "UTF-8").split("&")).iterator();
+					//System.out.println( "child: " + child);
+					streamMap = Arrays.asList ( URLDecoder.decode ( child, "UTF-8" ).split( "&" ) ).iterator();
 					streamMap.next(); // Skip the first line since it's always the url_encoded_fmt_stream_map stuff.
-					for(int index=0; index < 4; index++){
-						String a = streamMap.next();
-						String b = streamMap.next();
-						String c = streamMap.next();
-						String d = streamMap.next();
+					
+					
+					
+					
+					
+					for ( int index = 0; index < 4; index++ ) {
+						a = streamMap.next();
+						b = streamMap.next();
+						c = streamMap.next();
+						d = streamMap.next();
 
-						Map<String, String> associatedData = new HashMap<String, String>();
-						int itag = -1;
-						if(a.startsWith("itag=")){
-							itag = Integer.valueOf(a.substring(5));
-							String[] bData = b.split("=");
-							String[] cData = c.split("=");
-							String[] dData = d.split("=");
-							associatedData.put(bData[0], bData[1]);
-							associatedData.put(cData[0], cData[1]);
-							associatedData.put(dData[0], dData[1]);
-						} else if(b.startsWith("itag=")){
-							itag = Integer.valueOf(b.substring(5));
-							String[] aData = a.split("=");
-							String[] cData = c.split("=");
-							String[] dData = d.split("=");
-							associatedData.put(aData[0], aData[1]);
-							associatedData.put(cData[0], cData[1]);
-							associatedData.put(dData[0], dData[1]);
-						} else if(c.startsWith("itag=")){
-							itag = Integer.valueOf(c.substring(5));
-							String[] aData = a.split("=");
-							String[] bData = b.split("=");
-							String[] dData = d.split("=");
-							associatedData.put(aData[0], aData[1]);
-							associatedData.put(bData[0], bData[1]);
-							associatedData.put(dData[0], dData[1]);
-						} else if(d.startsWith("itag=")){
-							itag = Integer.valueOf(d.substring(5));
-							String[] aData = a.split("=");
-							String[] bData = b.split("=");
-							String[] cData = c.split("=");
-							associatedData.put(aData[0], aData[1]);
-							associatedData.put(bData[0], bData[1]);
-							associatedData.put(cData[0], cData[1]);
+
+						associatedData = new HashMap < String, String >();
+						
+						itag = -1;
+						
+						if ( a.startsWith ( "itag=" ) ) {
+							itag = Integer.valueOf ( a.substring ( 5 ) );
+							bData = b.split ( "=" );
+							cData = c.split ( "=" );
+							dData = d.split ( "=" );
+							associatedData.put ( bData [ 0 ], bData [ 1 ] );
+							associatedData.put ( cData [ 0 ], cData [ 1 ] );
+							associatedData.put ( dData [ 0 ], dData [ 1 ] );
+						}
+						else if ( b.startsWith ( "itag=" ) ) {
+							itag = Integer.valueOf ( b.substring ( 5 ) );
+							aData = a.split ( "=" );
+							cData = c.split ( "=" );
+							dData = d.split ( "=" );
+							associatedData.put ( aData [ 0 ], aData [ 1 ] );
+							associatedData.put ( cData [ 0 ], cData [ 1 ]);
+							associatedData.put ( dData [ 0 ], dData [ 1 ]);
+						}
+						else if ( c.startsWith ( "itag=" ) ) {
+							itag = Integer.valueOf ( c.substring ( 5 ) );
+							aData = a.split ( "=" );
+							bData = b.split ( "=" );
+							dData = d.split ( "=" );
+							associatedData.put ( aData [ 0 ], aData [ 1 ] );
+							associatedData.put ( bData [ 0 ], bData [ 1 ] );
+							associatedData.put ( dData [ 0 ], dData [ 1 ] );
+						}
+						else if ( d.startsWith ( "itag=" ) ) {
+							itag = Integer.valueOf ( d.substring ( 5 ) );
+							aData = a.split ( "=" );
+							bData = b.split ( "=" );
+							cData = c.split ( "=" );
+							associatedData.put ( aData [ 0 ], aData [ 1 ] );
+							associatedData.put ( bData [ 0 ], bData [ 1 ] );
+							associatedData.put ( cData [ 0 ], cData [ 1 ] );
 						}
 
-						if(itag != -1){
-							itagList.put(itag, associatedData);
+						if ( itag != -1 ) {
+							itagList.put ( itag, associatedData );
 						}
 					}
 					break;
 				}
 			}
 
-			System.out.println(itagList.toString());
-			System.out.println(URLDecoder.decode(itagList.get(18).get("url")));
+			
+			int choice = 0;
+			
+			for ( Map.Entry< Integer, Map<String, String> > e : itagList.entrySet() ) {
+				
+				//if the current set contain data description for the small quality video
+				if ( e.getValue().containsKey("url") )
+					choice = e.getKey();
+			    
+			}
+						
+			System.out.println ( "choice: " + choice );
+			
+			//System.out.println ( URLDecoder.decode ( itagList.get ( choice ).get ( "url" ) ) );
 		} catch (MalformedURLException e){
 			LOGGER.log(Level.SEVERE, "Failed to create a URL from the given ID. Is it even valid?", e);
 		} catch (IOException e){
