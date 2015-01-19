@@ -38,7 +38,9 @@ public class AnimationRunnable extends MultiUserRunnable {
 		}
 
 		try{
-			Thread.sleep(delay);
+			//Thread.sleep(delay);
+			Thread.sleep(33); // Hah. Fun fact: 24 FPS is (rounded) 42ms per frame.
+			// LET'S BE CRAZY! LET'S DO 30/29.97FPS!
 		} catch (InterruptedException e){
 			logger.log(Level.WARNING, "Something told us to wake up before the animation ended!");
 		}

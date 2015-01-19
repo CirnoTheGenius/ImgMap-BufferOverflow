@@ -1,6 +1,7 @@
 package net.yukkuricraft.tenko.imgmap.ffmpeg;
 
 import net.yukkuricraft.tenko.imgmap.ImgMap;
+import net.yukkuricraft.tenko.imgmap.youtubeproc.YouTubeAPIRegex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,10 +19,11 @@ public abstract class Provider {
 
 	private final File FFMPEG_EXECUTABLE;
 	// Hooray for scope violation!
+	// Ramp it up to 24FPS
 	protected final String[] DEFAULT_FFMPEG_ARGS = {
 			"<insert program dir here>",
 			"-i", "<insert url>",
-			"-r", "10",
+			"-r", "29.97",
 			"-threads", "0",
 			"-vf", "scale=128:128",
 			"-y", "<insert output>"
@@ -38,10 +40,7 @@ public abstract class Provider {
 		String[] copy = Arrays.copyOf(DEFAULT_FFMPEG_ARGS, DEFAULT_FFMPEG_ARGS.length);
 		copy[0] = FFMPEG_EXECUTABLE.getAbsolutePath();
 		if(ytVideo){
-			// 240P MP4/V only
-			// Why the lowest quality? Lighter on server + we need to convert it to 128x128 anyways.
-			// ex. URL: http://www.ytapi.com/api/wO4pNpZ9syY/direct/133/
-			copy[2] = "http://www.ytapi.com/api/" + string + "/direct/133/";
+			copy[2] = YouTubeAPIRegex.getDirectLinks(string).get(0);
 		} else {
 			copy[2] = string;
 		}
