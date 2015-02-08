@@ -16,7 +16,6 @@ import org.bukkit.craftbukkit.v1_7_R1.map.CraftMapRenderer;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.logging.Level;
 
@@ -49,25 +48,30 @@ public class AbstractionImpl implements Abstraction {
 			final Channel channel = (Channel)f.get(netty);
 			return new ProxyChannel(){
 
-				private WeakReference<Channel> oneechan = new WeakReference<Channel>(channel);
+				private Channel oneechan = channel;
 
 				@Override
 				public void sendPacket(Object o){
 					if(isOpen() && o instanceof Packet){
-						oneechan.get().write(o);
+						oneechan.write(o);
 					}
 				}
 
 				@Override
 				public void flush(){
 					if(isOpen()){
-						oneechan.get().flush();
+						oneechan.flush();
 					}
 				}
 
 				@Override
 				public boolean isOpen(){
-					return oneechan.get() != null && oneechan.get().isOpen();
+					return oneechan != null && oneechan.isOpen();
+				}
+
+				@Override
+				public void close() {
+					this.oneechan = null;
 				}
 
 			};

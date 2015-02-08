@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
-import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,12 +58,18 @@ public class AbstractionImpl implements Abstraction {
       *
       *
       *      Seriously, what the hell is data.buffer?
+      *      Okay, so to the client, buffer (or colors) is supposed to be 16384 bytes (which is 128 x 128)
       */
     @Override
     public Object getPacketData(int id, byte[] data){
         return new PacketPlayOutMap(id, MapView.Scale.FARTHEST.getValue(), empty, data, 0, 0, 0, 0);
     }
 
+    /*
+     * Suggestion to self:
+     * Instead of using the Channel object to send the packet, use the PlayerConnection.sendPacket(Packet) method.
+     * Reason for not doing this in the past: PlayerConnection.sendPacket(Packet) used to create large amounts of lag.
+     */
     @Override
     public ProxyChannel newChannel(Player player){
         if(!(player instanceof CraftPlayer)){
@@ -79,25 +84,30 @@ public class AbstractionImpl implements Abstraction {
             final Channel channel = (Channel)f.get(netty);
             return new ProxyChannel(){
 
-                private WeakReference<Channel> oneechan = new WeakReference<Channel>(channel);
+                private Channel oneechan = channel; // Why do I do this? I don't want to hard reference the channel.
 
                 @Override
                 public void sendPacket(Object o){
                     if(isOpen() && o instanceof Packet){
-                        oneechan.get().write(o);
+                        oneechan.write(o);
                     }
                 }
 
                 @Override
                 public void flush(){
                     if(isOpen()){
-                        oneechan.get().flush();
+                        oneechan.flush();
                     }
                 }
 
                 @Override
                 public boolean isOpen(){
-                    return oneechan.get() != null && oneechan.get().isOpen();
+                    return oneechan != null && oneechan.isOpen();
+                }
+
+                @Override
+                public void close() {
+                    this.oneechan = null;
                 }
 
             };

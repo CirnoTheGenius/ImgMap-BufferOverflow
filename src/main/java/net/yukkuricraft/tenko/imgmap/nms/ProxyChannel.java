@@ -8,6 +8,8 @@ public interface ProxyChannel {
 
 	public boolean isOpen();
 
+	public void close();
+
 //	public boolean isWritable(); I should probably leave this as a method, but isOpen and isWritable sounds redundent.
 
 }

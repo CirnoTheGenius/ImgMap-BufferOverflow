@@ -13,7 +13,7 @@ public class NixProvider extends Provider {
 
 	@Override
 	public void execute(String video, File file){
-		startProcess(buildProcess().command(generateArguments(video, file, video.indexOf('.') == -1)));
+		startProcess(buildProcess().command(generateArguments(video, file, !video.contains("."))));
 	}
 
 }

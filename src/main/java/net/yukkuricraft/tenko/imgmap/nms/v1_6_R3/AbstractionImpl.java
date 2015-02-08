@@ -12,7 +12,6 @@ import org.bukkit.craftbukkit.v1_6_R3.map.CraftMapRenderer;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
-import java.lang.ref.WeakReference;
 import java.util.logging.Level;
 
 public class AbstractionImpl implements Abstraction {
@@ -42,12 +41,12 @@ public class AbstractionImpl implements Abstraction {
 		// ABSOLUTELY unsafe proxy object. Can someone who remembers 1.6.4 fix this or tell me if this even works?
 		return new ProxyChannel(){
 
-			private WeakReference<PlayerConnection> connection = new WeakReference<PlayerConnection>(((CraftPlayer)player).getHandle().playerConnection);
+			private PlayerConnection connection = ((CraftPlayer)player).getHandle().playerConnection;
 
 			@Override
 			public void sendPacket(Object o){
 				if(isOpen() && o instanceof Packet){
-					connection.get().sendPacket((Packet)o);
+					connection.sendPacket((Packet)o);
 				}
 			}
 
@@ -58,7 +57,12 @@ public class AbstractionImpl implements Abstraction {
 
 			@Override
 			public boolean isOpen(){
-				return connection.get() != null && !connection.get().disconnected;
+				return connection != null && !connection.disconnected;
+			}
+
+			@Override
+			public void close() {
+				connection = null;
 			}
 
 		};
