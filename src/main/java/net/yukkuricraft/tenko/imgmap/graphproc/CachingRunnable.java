@@ -4,7 +4,6 @@ import net.yukkuricraft.tenko.imgmap.helper.IOHelper;
 import net.yukkuricraft.tenko.imgmap.helper.MapHelper;
 import net.yukkuricraft.tenko.imgmap.nms.NMSHelper;
 import net.yukkuricraft.tenko.imgmap.objs.GifDecoder;
-import org.bukkit.map.MapPalette;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -54,9 +53,9 @@ public class CachingRunnable implements Runnable {
 		numFrames = decoder.getFrameCount();
 		this.delayMilliseconds = decoder.getDelay(1); //Grab some sample from the second frame.
 
-		packets = new Object[numFrames][128];
 
 		if(!NMSHelper.IS_181.get()){
+			packets = new Object[numFrames][128];
 			Pre181Cacher _tmp;
 			for(int i=0; i < numFrames; i++){
 				_tmp = new Pre181Cacher();
@@ -65,6 +64,7 @@ public class CachingRunnable implements Runnable {
 				service.execute(_tmp);
 			}
 		} else {
+			packets = new Object[numFrames][1];
 			Current181Cacher _tmp;
 			for(int i=0; i < numFrames; i++){
 				_tmp = new Current181Cacher();
@@ -124,15 +124,15 @@ public class CachingRunnable implements Runnable {
 			BufferedImage image = decoder.getFrame(index);
 			IOHelper.resizeImage(image); //Reisze it down to 128x128. (Let's test it with QUALITY resizes!)
 
-//			byte[] data = new byte[16384];
-//			for(int x = 0; x < 128; x++){
-//				for(int y = 0; y < 128; y++){
-//					data[x + y * 128] = MapHelper.matchColor(image.getRGB(x, y));
-//				}
-//			}
+			byte[] data = new byte[128 * 128];
+			for(int x = 0; x < 128; x++){
+				for(int y = 0; y < 128; y++){
+					data[x + y * 128] = MapHelper.matchColor(image.getRGB(x, y));
+				}
+			}
 
 			//Hacky.
-			packets[index][0] = NMSHelper.getMapPacket(id, MapPalette.imageToBytes(image));
+			packets[index][0] = NMSHelper.getMapPacket(id, data);
 			image.flush();
 		}
 

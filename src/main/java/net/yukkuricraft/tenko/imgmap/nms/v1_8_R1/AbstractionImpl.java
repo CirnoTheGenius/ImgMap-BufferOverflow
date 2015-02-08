@@ -56,6 +56,9 @@ public class AbstractionImpl implements Abstraction {
       *              this.getHandle().playerConnection.sendPacket(packet1);
       *              }
       *          }
+      *
+      *
+      *      Seriously, what the hell is data.buffer?
       */
     @Override
     public Object getPacketData(int id, byte[] data){
