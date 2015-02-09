@@ -1,71 +1,81 @@
 package net.yukkuricraft.tenko.imgmap.ffmpeg.archived;
 
 import net.yukkuricraft.tenko.imgmap.ImgMap;
+import net.yukkuricraft.tenko.imgmap.youtubeproc.YouTubeAPIRegex;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public abstract class Provider {
 
-	/*
-	"-i", "http://www.ytapi.com/?vid=" + YTAPIVideoObj.this.id + "&format=direct&itag=160",
-	"-r", "10", "-threads", "0", "-vf", "scale=128:128,format=rgb8,format=rgb24", "-y",
-	 */
-
-	protected Logger logger = Logger.getLogger("ImgMap-FFmpegProv");
-	private final File FFMPEG_EXE;
+	protected final Logger logger = Logger.getLogger("ImgMap-FFmpegProv");
 	protected final WeakReference<ImgMap> plugin;
 
-	public Provider(ImgMap plugin, File ffmpeg){
-		this.FFMPEG_EXE = ffmpeg;
-		this.plugin = new WeakReference<ImgMap>(plugin);
-	}
-
-	// Ehehehe... Let's try 24FPS.
-	// 24FPS worked finely. My main concern was that it brought me down from 260FPS to 80FPS.
-	// Let's try 30?
-	// 30 is too insane. It does the same as 24FPS, but it runs too quickly. I guess
-	// the safe FPS regions is 10 to 24.
-	public static final String[] DEFAULT_FFMPEG_ARGS = {
+	private final File FFMPEG_EXECUTABLE;
+	// Hooray for scope violation!
+	// Ramp it up to 24FPS
+	protected final String[] DEFAULT_FFMPEG_ARGS = {
 			"<insert program dir here>",
 			"-i", "<insert url>",
-			"-r", "10",
+			"-r", "29.97",
 			"-threads", "0",
 			"-vf", "scale=128:128",
 			"-y", "<insert output>"
 	};
 
-	private final String[] generateDefault(String vid, File o){
-		String[] args = Arrays.copyOf(DEFAULT_FFMPEG_ARGS, DEFAULT_FFMPEG_ARGS.length);
-		args[2] = "http://www.ytapi.com/?vid=" + vid + "&format=direct&itag=160";
-		args[args.length-1] = o.getAbsolutePath();
-		return args;
+	public Provider(ImgMap plugin, File ffmpeg){
+		this.plugin = new WeakReference<ImgMap>(plugin);
+		FFMPEG_EXECUTABLE = ffmpeg;
 	}
 
-	protected final String[] win32Args(String video_id, File output){
-		String[] defArgs = generateDefault(video_id, output);
-		defArgs[0] = getExecutablePath();
-		return defArgs;
+	public abstract void execute(String url, File output);
+
+	public String[] generateArguments(String string, File output, boolean ytVideo){
+		String[] copy = Arrays.copyOf(DEFAULT_FFMPEG_ARGS, DEFAULT_FFMPEG_ARGS.length);
+		copy[0] = FFMPEG_EXECUTABLE.getAbsolutePath();
+		if(ytVideo){
+			copy[2] = "\"" + YouTubeAPIRegex.getDirectLinks(string).get(0) + "\"";
+		} else {
+			copy[2] = "\"" + string + "\"";
+		}
+		copy[copy.length - 1] = output.getAbsolutePath();
+		System.out.println(Arrays.toString(copy));
+		return copy;
 	}
 
-	protected final String[] nixArgs(String video_id, File output){
-		String[] defArgs = generateDefault(video_id, output);
-		defArgs[0] = "./ffmpeg";
-		return defArgs;
+	public ProcessBuilder buildProcess(){
+		if(plugin.get() == null){
+			throw new IllegalStateException();
+		}
+
+		ProcessBuilder builder = new ProcessBuilder();
+		builder.directory(plugin.get().getDataFolder());
+		builder.redirectErrorStream(true);
+		return builder;
 	}
 
 	public boolean isAvailable(){
-		return FFMPEG_EXE.exists();
+		return FFMPEG_EXECUTABLE.exists();
 	}
 
-	public String getExecutablePath(){
-		return FFMPEG_EXE.getAbsolutePath();
+	public void startProcess(ProcessBuilder builder){
+		try{
+			Process process = builder.start();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String l;
+			while((l = reader.readLine()) != null){
+				logger.log(Level.INFO, l);
+			}
+			reader.close();
+		} catch (IOException e){
+			logger.log(Level.SEVERE, "Failed to start process with command " + builder.command().toString(), e);
+		}
 	}
-
-	public abstract File execute(String video_id, File target);
-
-	public abstract File executeNonYouTube(String url, File target);
 
 }

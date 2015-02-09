@@ -3,24 +3,13 @@ package net.yukkuricraft.tenko.imgmap.ffmpeg;
 import net.yukkuricraft.tenko.imgmap.ImgMap;
 import net.yukkuricraft.tenko.imgmap.youtubeproc.YouTubeAPIRegex;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public abstract class Provider {
+public class Provider {
 
-	protected final Logger logger = Logger.getLogger("ImgMap-FFmpegProv");
-	protected final WeakReference<ImgMap> plugin;
-
-	private final File FFMPEG_EXECUTABLE;
-	// Hooray for scope violation!
-	// Ramp it up to 24FPS
-	protected final String[] DEFAULT_FFMPEG_ARGS = {
+	private final static String[] FFMPEG_ARGUMENTS = {
 			"<insert program dir here>",
 			"-i", "<insert url>",
 			"-r", "29.97",
@@ -29,53 +18,66 @@ public abstract class Provider {
 			"-y", "<insert output>"
 	};
 
-	public Provider(ImgMap plugin, File ffmpeg){
-		this.plugin = new WeakReference<ImgMap>(plugin);
-		FFMPEG_EXECUTABLE = ffmpeg;
+	private File ffmpegExecutable;
+	private File pluginDirectory;
+
+	public Provider(ImgMap plugin, OS os){
+		pluginDirectory = plugin.getDataFolder();
+		ffmpegExecutable = new File(pluginDirectory, "ffmpeg" + os.getExtension());
+		FFMPEG_ARGUMENTS[0] = "ffmpeg" + os.getExtension();
 	}
 
-	public abstract void execute(String url, File output);
+	public String[] buildArguments(String url){
+		String[] arguments = Arrays.copyOf(FFMPEG_ARGUMENTS, FFMPEG_ARGUMENTS.length);
+		File output;
 
-	public String[] generateArguments(String string, File output, boolean ytVideo){
-		String[] copy = Arrays.copyOf(DEFAULT_FFMPEG_ARGS, DEFAULT_FFMPEG_ARGS.length);
-		copy[0] = FFMPEG_EXECUTABLE.getAbsolutePath();
-		if(ytVideo){
-			copy[2] = "\"" + YouTubeAPIRegex.getDirectLinks(string).get(0) + "\"";
-		} else {
-			copy[2] = "\"" + string + "\"";
+		if(url.contains("/")){ // This is an external URL.
+			arguments[2] = "\"" + url + "\"";
+			output = new File(pluginDirectory, url.substring(url.lastIndexOf("/") + 1) + ".gif");
+			arguments[arguments.length - 1] = "\"" + output.getAbsolutePath() + "\"";
+		} else { // Assume YouTube
+			arguments[2] = "\"" + YouTubeAPIRegex.getDirectLinks(url).get(0) + "\"";
+			output = new File(pluginDirectory, url + ".gif");
+			arguments[arguments.length - 1] = "\"" + output.getAbsolutePath()+ "\"";
 		}
-		copy[copy.length - 1] = output.getAbsolutePath();
-		System.out.println(Arrays.toString(copy));
-		return copy;
+
+		return arguments;
 	}
 
-	public ProcessBuilder buildProcess(){
-		if(plugin.get() == null){
-			throw new IllegalStateException();
-		}
-
+	public ProcessBuilder buildProcess(String[] command){
 		ProcessBuilder builder = new ProcessBuilder();
-		builder.directory(plugin.get().getDataFolder());
-		builder.redirectErrorStream(true);
+		builder.inheritIO();
+		builder.command(command);
+		builder.directory(pluginDirectory);
 		return builder;
 	}
 
-	public boolean isAvailable(){
-		return FFMPEG_EXECUTABLE.exists();
+	public void execute(String url){
+		try{
+			buildProcess(buildArguments(url)).start();
+		} catch (IOException e){
+			e.printStackTrace();
+		}
 	}
 
-	public void startProcess(ProcessBuilder builder){
-		try{
-			Process process = builder.start();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-			String l;
-			while((l = reader.readLine()) != null){
-				logger.log(Level.INFO, l);
+	public boolean isAvailable(){
+		return !ffmpegExecutable.exists();
+	}
+
+	public enum OS {
+
+		WIN, OSX, NIX;
+
+		public String getExtension(){
+			if(this == WIN){
+				return ".exe";
+			} else if(this == OSX || this == NIX){
+				return "";
 			}
-			reader.close();
-		} catch (IOException e){
-			logger.log(Level.SEVERE, "Failed to start process with command " + builder.command().toString(), e);
+
+			return ".invalidOS";
 		}
+
 	}
 
 }

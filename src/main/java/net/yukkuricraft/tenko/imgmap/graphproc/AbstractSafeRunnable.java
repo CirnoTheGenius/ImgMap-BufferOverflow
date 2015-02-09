@@ -31,7 +31,7 @@ public abstract class AbstractSafeRunnable implements Runnable {
 		if(thread == null || thread.get() == null){
 			Thread thread = new Thread(this);
 			thread.start();
-			this.thread = new SoftReference<Thread>(thread);
+			this.thread = new SoftReference<>(thread);
 			return thread;
 		}
 

@@ -81,7 +81,7 @@ public class MapDatabase {
 			data.put("animated", animated);
 			data.put("local", local);
 		} else {
-			data = new HashMap<String, String>();
+			data = new HashMap<>();
 			data.put("image", url);
 			data.put("animated", animated);
 			data.put("local", local);
@@ -124,9 +124,7 @@ public class MapDatabase {
 				Image image = local ? IOHelper.fetchLocalImage(imageURL) : IOHelper.fetchImage(imageURL);
 				MapRenderer renderer = animated ? null : new ImageRenderer(image); // Fix for animated images later.
 				view.addRenderer(renderer);
-			} catch (NumberFormatException e){
-				logger.log(Level.WARNING, "Failed to parse " + entry.getKey(), e);
-			} catch (ClassCastException e){
+			} catch (NumberFormatException | ClassCastException e){
 				logger.log(Level.WARNING, "Failed to parse " + entry.getKey(), e);
 			} catch (IOException e){
 				logger.log(Level.WARNING, "Encountered error while trying to retrieve image on ID " + entry.getKey(), e);

@@ -4,10 +4,7 @@ import net.yukkuricraft.tenko.imgmap.command.ClearMapCommand;
 import net.yukkuricraft.tenko.imgmap.command.DrawImageCommand;
 import net.yukkuricraft.tenko.imgmap.command.DrawYTVideoCommand;
 import net.yukkuricraft.tenko.imgmap.command.GetMapCommand;
-import net.yukkuricraft.tenko.imgmap.ffmpeg.NixProvider;
 import net.yukkuricraft.tenko.imgmap.ffmpeg.Provider;
-import net.yukkuricraft.tenko.imgmap.ffmpeg.UnknownProvider;
-import net.yukkuricraft.tenko.imgmap.ffmpeg.Win32Provider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -77,18 +74,18 @@ public class ImgMap extends JavaPlugin {
 		String os = System.getProperty("os.name");
 		if(os.contains("win") || os.contains("Windows")){
 			getLogger().info("Detected Windows environment.");
-			provider = new Win32Provider(this);
+			provider = new Provider(this, Provider.OS.WIN);
 		} else if(os.contains("nix") || os.contains("aix") || os.contains("nux")){
 			getLogger().info("Detected *nix environment.");
-			provider = new NixProvider(this);
+			provider = new Provider(this, Provider.OS.NIX);
 		} else if(os.contains("mac") || os.contains("osx")){
 			// Unfortunately, I don't know the full specifications of OSX.
 			getLogger().info("Detected OSX/Mac environment. ImgMap does not officially support OSX/Mac; videos may or may not work.");
-			provider = new NixProvider(this); // Let's assume it's a *nix environment since OSX is built upon Linux.
+			provider = new Provider(this, Provider.OS.OSX);
 		} else {
 			getLogger().warning("Detected unknown environment. Failed to provide suitable FFmpeg interface for " + os + ". Videos have been disabled.");
 			getLogger().warning("Please post back onto the ImgMap plugin page with your OS. Depending on demand, official support may be provided. Otherwise, you can try tricking ImgMap into loading a provider by restarting the server with \"-Dos.name=[win32, nix, osx]\", however, this is highly UNRECOMMENDED since if other plugins use the same method of OS detection, it will cause them to see the fake OS.");
-			provider = new UnknownProvider();
+			provider = new Provider(this, null);
 		}
 
 		ffmpegProvider = provider;

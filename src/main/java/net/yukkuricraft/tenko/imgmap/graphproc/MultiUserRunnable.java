@@ -28,6 +28,9 @@ public abstract class MultiUserRunnable extends AbstractSafeRunnable {
 
 	@Override
 	public Thread stop(){
+		for(ProxyChannel channel : channels.values()){
+			channel.close();
+		}
 		channels.clear();
 		return super.stop();
 	}
