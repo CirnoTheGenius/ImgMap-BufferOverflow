@@ -25,7 +25,7 @@ public class DownloadRunnable implements Runnable {
 			return;
 		}
 
-		ImgMap.getFFmpegProvider().execute(url, result); // This blocks.
+		ImgMap.getFFmpegProvider().execute(url); // This blocks.
 	}
 
 	public File getFile(){

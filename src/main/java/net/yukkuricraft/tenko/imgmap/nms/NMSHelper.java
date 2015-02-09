@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapRenderer;
 
 import java.util.WeakHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 public class NMSHelper {
@@ -14,31 +13,16 @@ public class NMSHelper {
 	private static final Logger LOGGER = Logger.getLogger("ImgMap");
 	private static Abstraction TRUE_HELPER; // I call it "TRUE_HELPER" because NMSHelper is like a mask for it.
 	private static final WeakHashMap<Player, ProxyChannel> cache = new WeakHashMap<Player, ProxyChannel>();
-	public static final AtomicBoolean IS_181 = new AtomicBoolean(false);
 
 	static {
 		if(TRUE_HELPER == null){
-			if(Bukkit.getVersion().contains("Spigot") && (Bukkit.getVersion().contains("1.7.9") || Bukkit.getVersion().contains("1.7.10"))){
-				try {
-					Class<?> klass = SpigotProtocolFix.getSpigotClass();
-					TRUE_HELPER = (Abstraction)klass.newInstance();
-				} catch (ReflectiveOperationException e){
-					LOGGER.warning("Failed to provide a NMS helper for Spigot 1.7-1.8's protocol hack.");
-					LOGGER.warning("Full CraftServer package name: " + Bukkit.getServer().getClass().getPackage().getName());
-				}
-			} else {
-				String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-				if(version.equalsIgnoreCase("v1_8_1")){
-					IS_181.compareAndSet(false, true);
-					LOGGER.warning("ImgMap for 1.8.1 is experimental!");
-				}
-				try{
-					Class<?> klass = Class.forName("net.yukkuricraft.tenko.imgmap.nms." + version + ".AbstractionImpl");
-					TRUE_HELPER = (Abstraction)klass.newInstance();
-				} catch (ReflectiveOperationException e) {
-					LOGGER.warning("Could not find a suitable implementation for handling NMS version " + version + ".");
-					LOGGER.warning("Full CraftServer package name: " + Bukkit.getServer().getClass().getPackage().getName());
-				}
+			String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+			try{
+				Class<?> klass = Class.forName("net.yukkuricraft.tenko.imgmap.nms." + version + ".AbstractionImpl");
+				TRUE_HELPER = (Abstraction)klass.newInstance();
+			} catch (ReflectiveOperationException e) {
+				LOGGER.warning("Could not find a suitable implementation for handling NMS version " + version + ".");
+				LOGGER.warning("Full CraftServer package name: " + Bukkit.getServer().getClass().getPackage().getName());
 			}
 		}
 	}

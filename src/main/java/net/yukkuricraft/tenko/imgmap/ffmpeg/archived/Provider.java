@@ -1,7 +1,7 @@
 package net.yukkuricraft.tenko.imgmap.ffmpeg.archived;
 
 import net.yukkuricraft.tenko.imgmap.ImgMap;
-import net.yukkuricraft.tenko.imgmap.youtubeproc.YouTubeAPIRegex;
+import net.yukkuricraft.tenko.imgmap.helper.YouTubeAPIRegex;
 
 import java.io.BufferedReader;
 import java.io.File;

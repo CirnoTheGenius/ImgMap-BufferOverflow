@@ -1,4 +1,4 @@
-package net.yukkuricraft.tenko.imgmap.youtubeproc;
+package net.yukkuricraft.tenko.imgmap.helper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
